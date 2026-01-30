@@ -1,4 +1,4 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
 
@@ -61,51 +61,61 @@ local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Humanoid = Character:WaitForChild("Humanoid")
 
 local loadedTASData = nil
-local recordingModeEnabled = false
-local playbackModeEnabled = false
+local isRecordingModeEnabled = false
+local isPlaybackModeEnabled = false
 local selectedTASFileName = ""
 
 storage.initialize()
 
-local Window = Rayfield:CreateWindow({
-    Name = "Amethyst",
-    Icon = 0,
-    LoadingTitle = "Amethyst",
-    LoadingSubtitle = "Melhor script para Exércitos Brasileiros",
-    Theme = "Amethyst",
-    ToggleUIKeybind = "K",
-    DisableRayfieldPrompts = false,
-    DisableBuildWarnings = true,
-    ConfigurationSaving = {Enabled = false},
-    Discord = {Enabled = false},
-    KeySystem = false
+local Window = WindUI:CreateWindow({
+    Title = "Amethyst",
+    Icon = "lucide:sparkles",
+    Author = "by y4fw",
+    Folder = "AmethystTAS",
+    Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark",
+    Transparent = true,
+    SideBarWidth = 200,
 })
 
-local RecordTab = Window:CreateTab("Gravar TAS")
-local PlaybackTab = Window:CreateTab("Reproduzir TAS")
-local SettingsTab = Window:CreateTab("Configurações")
+Window:SetToggleKey(Enum.KeyCode.K)
+
+local RecordTab = Window:Tab({
+    Title = "Gravar TAS",
+    Icon = "lucide:circle-dot"
+})
+
+local PlaybackTab = Window:Tab({
+    Title = "Reproduzir TAS",
+    Icon = "lucide:play"
+})
+
+local SettingsTab = Window:Tab({
+    Title = "Configurações",
+    Icon = "lucide:settings"
+})
 
 local function notify(title, content, duration)
-    Rayfield:Notify({
+    WindUI:Notify({
         Title = title,
         Content = content,
         Duration = duration,
-        Image = 117542291098497
+        Icon = "lucide:info"
     })
 end
 
-RecordTab:CreateParagraph({
+RecordTab:Paragraph({
     Title = "Controles",
-    Content = "Ative o modo de gravação, depois use E para iniciar e Q para parar."
+    Desc = "Ative o modo de gravação, depois use E para iniciar e Q para parar."
 })
 
-local RecordModeToggle = RecordTab:CreateToggle({
-    Name = "Ativar",
-    CurrentValue = false,
-    Flag = "ModoGravacao",
-    Callback = function(toggleValue)
-        recordingModeEnabled = toggleValue
-        if toggleValue then
+local RecordModeToggle = RecordTab:Toggle({
+    Title = "Ativar Modo de Gravação",
+    Desc = "Habilitar gravação de TAS",
+    Value = false,
+    Callback = function(state)
+        isRecordingModeEnabled = state
+        if isRecordingModeEnabled then
             notify("Gravando!", "Pressione E para iniciar, Q para parar", 3)
         else
             if recording.isRecording then
@@ -115,49 +125,55 @@ local RecordModeToggle = RecordTab:CreateToggle({
     end
 })
 
-local FrameCounterLabel = RecordTab:CreateLabel("Frames Gravados: 0")
-
-local SaveFileNameInput = RecordTab:CreateInput({
-    Name = "Nome do Arquivo",
-    CurrentValue = "",
-    PlaceholderText = "Digite o nome...",
-    RemoveTextAfterFocusLost = false,
-    Flag = "SaveName",
-    Callback = function(inputText) end
+local FrameCounterParagraph = RecordTab:Paragraph({
+    Title = "Status",
+    Desc = "Frames Gravados: 0"
 })
 
-RecordTab:CreateButton({
-    Name = "Salvar",
+local SaveFileNameInput = RecordTab:Input({
+    Title = "Nome do Arquivo",
+    Desc = "Digite o nome para salvar o TAS",
+    Value = "",
+    Placeholder = "Digite o nome...",
+    Callback = function(value) end
+})
+
+RecordTab:Button({
+    Title = "Salvar TAS",
+    Desc = "Salvar gravação atual",
     Callback = function()
-        local fileName = SaveFileNameInput.CurrentValue
+        local fileName = SaveFileNameInput.Value
         storage.saveTASToFile(fileName, recording.recordedFrames, notify)
     end
 })
 
-PlaybackTab:CreateParagraph({
+PlaybackTab:Paragraph({
     Title = "Carregar TAS",
-    Content = "Selecione um TAS salvo da lista abaixo para carregar."
+    Desc = "Selecione um TAS salvo da lista abaixo para carregar."
 })
 
-local TASFileDropdown = PlaybackTab:CreateDropdown({
-    Name = "Selecionar TAS",
-    Options = storage.getTASFileList(),
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "TASDropdown",
-    Callback = function(selectedOptions)
-        if selectedOptions and selectedOptions[1] then
-            local tasData = storage.loadTASFromFile(selectedOptions[1], notify)
+local TASFileDropdown = PlaybackTab:Dropdown({
+    Title = "Selecionar TAS",
+    Desc = "Escolha um TAS para reproduzir",
+    Values = storage.getTASFileList(),
+    Value = {},
+    Multi = false,
+    AllowNone = true,
+    Callback = function(option)
+        if option and #option > 0 then
+            local selectedFile = option[1]
+            local tasData = storage.loadTASFromFile(selectedFile, notify)
             if tasData then
                 loadedTASData = tasData
-                selectedTASFileName = selectedOptions[1]
+                selectedTASFileName = selectedFile
             end
         end
-    end,
+    end
 })
 
-PlaybackTab:CreateButton({
-    Name = "Atualizar",
+PlaybackTab:Button({
+    Title = "Atualizar Lista",
+    Desc = "Atualizar lista de TAS salvos",
     Callback = function()
         local updatedList = storage.getTASFileList()
         TASFileDropdown:Refresh(updatedList)
@@ -165,8 +181,9 @@ PlaybackTab:CreateButton({
     end
 })
 
-PlaybackTab:CreateButton({
-    Name = "Deletar TAS",
+PlaybackTab:Button({
+    Title = "Deletar TAS",
+    Desc = "Deletar TAS selecionado",
     Callback = function()
         if selectedTASFileName ~= "" then
             storage.deleteTASFile(selectedTASFileName, notify)
@@ -180,22 +197,24 @@ PlaybackTab:CreateButton({
     end
 })
 
-PlaybackTab:CreateParagraph({
+PlaybackTab:Divider()
+
+PlaybackTab:Paragraph({
     Title = "Reproduzir TAS",
-    Content = "Ative o modo de reprodução e use E para iniciar, Q para parar."
+    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar."
 })
 
-local PlaybackModeToggle = PlaybackTab:CreateToggle({
-    Name = "Ativar Modo de Reprodução",
-    CurrentValue = false,
-    Flag = "ModoReproducao",
-    Callback = function(toggleValue)
-        playbackModeEnabled = toggleValue
-        if toggleValue then
+local PlaybackModeToggle = PlaybackTab:Toggle({
+    Title = "Ativar Modo de Reprodução",
+    Desc = "Habilitar reprodução de TAS",
+    Value = false,
+    Callback = function(state)
+        isPlaybackModeEnabled = state
+        if isPlaybackModeEnabled then
             if not loadedTASData or #loadedTASData == 0 then
                 notify("Erro", "Carregue um TAS primeiro", 2)
                 PlaybackModeToggle:Set(false)
-                playbackModeEnabled = false
+                isPlaybackModeEnabled = false
                 return
             end
             
@@ -216,20 +235,23 @@ local PlaybackModeToggle = PlaybackTab:CreateToggle({
     end
 })
 
-SettingsTab:CreateParagraph({
+SettingsTab:Paragraph({
     Title = "Descrição",
-    Content = "O melhor SCRIPT para Exércitos Brasileiros do roblox!"
+    Desc = "O melhor SCRIPT para Exércitos Brasileiros do Roblox!"
 })
 
-SettingsTab:CreateLabel("feito por y4fw")
+SettingsTab:Paragraph({
+    Title = "Créditos",
+    Desc = "Feito por y4fw"
+})
 
 UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
     if isProcessedByGame then return end
     
     if inputObject.KeyCode == Enum.KeyCode.E then
-        if recordingModeEnabled and not recording.isRecording then
+        if isRecordingModeEnabled and not recording.isRecording then
             recording.beginRecording(HumanoidRootPart, Character, workspace.CurrentCamera, notify)
-        elseif playbackModeEnabled and not playback.isPlaying then
+        elseif isPlaybackModeEnabled and not playback.isPlaying then
             if loadedTASData and #loadedTASData > 0 then
                 local firstFrameData = loadedTASData[1]
                 if firstFrameData and firstFrameData.cf then
@@ -247,9 +269,9 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
             end
         end
     elseif inputObject.KeyCode == Enum.KeyCode.Q then
-        if recordingModeEnabled and recording.isRecording then
+        if isRecordingModeEnabled and recording.isRecording then
             recording.endRecording(notify)
-        elseif playbackModeEnabled and playback.isPlaying then
+        elseif isPlaybackModeEnabled and playback.isPlaying then
             playback.stopPlayback(HumanoidRootPart, Humanoid, notify, function()
                 marker.destroyMarker()
             end)
@@ -260,8 +282,13 @@ end)
 RunService.Heartbeat:Connect(function()
     if recording.isRecording then
         local recordDuration = recording.getDuration()
-        FrameCounterLabel:Set(string.format("Frames Gravados: %d (%.2fs)", recording.getFrameCount(), recordDuration))
+        FrameCounterParagraph:SetDesc(string.format("Frames Gravados: %d (%.2fs)", recording.getFrameCount(), recordDuration))
     end
 end)
 
-notify("Amethyst", "Carregado com sucesso", 3)
+WindUI:Notify({
+    Title = "Amethyst",
+    Content = "Carregado com sucesso",
+    Duration = 3,
+    Icon = "lucide:check-circle"
+})
