@@ -2,25 +2,18 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
 
-print("=== Carregando Amethyst TAS ===")
-
 local function loadModule(name)
-    print("Carregando " .. name .. "...")
     local url = baseURL .. name
-    print("URL: " .. url)
     
     local success, result = pcall(function()
         return game:HttpGet(url)
     end)
     
     if not success then
-        warn("ERRO ao baixar " .. name .. ": " .. tostring(result))
         return nil
     end
     
     if result == "" or result:match("404") then
-        warn("ERRO: Arquivo " .. name .. " não encontrado no GitHub!")
-        warn("Verifique se o arquivo existe em: " .. url)
         return nil
     end
     
@@ -28,44 +21,36 @@ local function loadModule(name)
     local compiled, compileError = loadstring(result)
     
     if not compiled then
-        warn("ERRO ao compilar " .. name .. ": " .. tostring(compileError))
         return nil
     end
     
-    print("Executando módulo...")
     local executed, module = pcall(compiled)
     
     if not executed then
-        warn("ERRO ao executar " .. name .. ": " .. tostring(module))
         return nil
     end
     
     if module == nil then
-        warn("ERRO: " .. name .. " retornou nil!")
         return nil
     end
     
-    print("✓ " .. name .. " carregado com sucesso!")
     return module
 end
 
 local recording = loadModule("core/recording.lua")
-if not recording then error("Falha ao carregar recording.lua") end
+if not recording then error("[+] Falha ao carregar core/recording.lua") end
 
 local playback = loadModule("core/playback.lua")
-if not playback then error("Falha ao carregar playback.lua") end
+if not playback then error("[+] Falha ao carregar core/playback.lua") end
 
 local storage = loadModule("core/storage.lua")
-if not storage then error("Falha ao carregar storage.lua") end
+if not storage then error("[+] Falha ao carregar core/storage.lua") end
 
 local marker = loadModule("utils/marker.lua")
-if not marker then error("Falha ao carregar marker.lua") end
+if not marker then error("[+] Falha ao carregar utils/marker.lua") end
 
 local interpolation = loadModule("utils/interpolation.lua")
-if not interpolation then error("Falha ao carregar interpolation.lua") end
-
-print("=== Todos os módulos carregados! ===")
-print("")
+if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua") end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -111,18 +96,18 @@ local function notify(title, content, duration)
 end
 
 RecordTab:CreateParagraph({
-    Title = "Controles de Gravação",
+    Title = "Controles",
     Content = "Ative o modo de gravação, depois use E para iniciar e Q para parar."
 })
 
 local RecordModeToggle = RecordTab:CreateToggle({
-    Name = "Ativar Modo de Gravação",
+    Name = "Ativar",
     CurrentValue = false,
     Flag = "ModoGravacao",
     Callback = function(toggleValue)
         recordingModeEnabled = toggleValue
         if toggleValue then
-            notify("Modo de Gravação", "Pressione E para iniciar, Q para parar", 3)
+            notify("Gravando!", "Pressione E para iniciar, Q para parar", 3)
         else
             if recording.isRecording then
                 recording.endRecording(notify)
@@ -134,7 +119,7 @@ local RecordModeToggle = RecordTab:CreateToggle({
 local FrameCounterLabel = RecordTab:CreateLabel("Frames Gravados: 0")
 
 local SaveFileNameInput = RecordTab:CreateInput({
-    Name = "Nome do TAS",
+    Name = "Nome do Arquivo",
     CurrentValue = "",
     PlaceholderText = "Digite o nome...",
     RemoveTextAfterFocusLost = false,
@@ -143,7 +128,7 @@ local SaveFileNameInput = RecordTab:CreateInput({
 })
 
 RecordTab:CreateButton({
-    Name = "Salvar TAS",
+    Name = "Salvar",
     Callback = function()
         local fileName = SaveFileNameInput.CurrentValue
         storage.saveTASToFile(fileName, recording.recordedFrames, notify)
@@ -151,7 +136,7 @@ RecordTab:CreateButton({
 })
 
 PlaybackTab:CreateParagraph({
-    Title = "Carregar TAS Salvo",
+    Title = "Carregar TAS",
     Content = "Selecione um TAS salvo da lista abaixo para carregar."
 })
 
@@ -173,7 +158,7 @@ local TASFileDropdown = PlaybackTab:CreateDropdown({
 })
 
 PlaybackTab:CreateButton({
-    Name = "Atualizar Lista",
+    Name = "Atualizar",
     Callback = function()
         local updatedList = storage.getTASFileList()
         TASFileDropdown:Refresh(updatedList)
@@ -182,7 +167,7 @@ PlaybackTab:CreateButton({
 })
 
 PlaybackTab:CreateButton({
-    Name = "Deletar TAS Selecionado",
+    Name = "Deletar TAS",
     Callback = function()
         if selectedTASFileName ~= "" then
             storage.deleteTASFile(selectedTASFileName, notify)
