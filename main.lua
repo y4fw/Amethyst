@@ -17,7 +17,6 @@ local function loadModule(name)
         return nil
     end
     
-    print("Arquivo baixado, compilando...")
     local compiled, compileError = loadstring(result)
     
     if not compiled then
