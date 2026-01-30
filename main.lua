@@ -1,3 +1,5 @@
+local version = "v1.6.5"
+
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
@@ -79,6 +81,15 @@ local Window = WindUI:CreateWindow({
 })
 
 Window:SetToggleKey(Enum.KeyCode.K)
+
+Window:Tag({
+    Title = version,
+    Icon = "lucide:rocket",
+    Color = Color3.fromHex("#f3f050"),
+    Radius = 0,
+})
+
+Window.Icon:Enable()
 
 local RecordTab = Window:Tab({
     Title = "Gravar TAS",
