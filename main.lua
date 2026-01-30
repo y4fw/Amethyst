@@ -217,13 +217,8 @@ local PlaybackModeToggle = PlaybackTab:CreateToggle({
 })
 
 SettingsTab:CreateParagraph({
-    Title = "Controles",
-    Content = "Modo de Gravação: E = Iniciar | Q = Parar\nModo de Reprodução: E = Iniciar | Q = Parar"
-})
-
-SettingsTab:CreateParagraph({
-    Title = "Sistema de Sincronização",
-    Content = "Este TAS usa timestamps para garantir que rode na velocidade correta independente do FPS"
+    Title = "Descrição",
+    Content = "O melhor SCRIPT para Exércitos Brasileiros do roblox!"
 })
 
 SettingsTab:CreateLabel("feito por y4fw")
