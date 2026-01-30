@@ -75,8 +75,7 @@ local Window = Fluent:CreateWindow({
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
-    Theme = "Ametyst",
-    MinimizeKeybind = Enum.KeyCode.K
+    Theme = "Dark"
 })
 
 local Tabs = {
@@ -244,6 +243,8 @@ SaveManager:SetFolder("AmethystTAS/configs")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window.MinimizeKey = Enum.KeyCode.K
 
 Window:SelectTab(1)
 
