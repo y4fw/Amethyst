@@ -8,7 +8,7 @@ playback.playbackConnection = nil
 playback.playbackStartTimestamp = 0
 playback.savedAutoRotateValue = nil
 
-function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc, onComplete)
+function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc, onComplete, interpolationModule)
     if not loadedTASData or #loadedTASData == 0 then
         notifyFunc("Erro", "Nenhum TAS carregado", 2)
         return
@@ -85,9 +85,8 @@ function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc
         end
         
         local frameToApply = currentFrameData
-        if nextFrameData and interpolationValue > 0 then
-            local interpolation = require(game:GetService("ReplicatedStorage"):WaitForChild("Interpolation"))
-            frameToApply = interpolation.interpolateFrames(currentFrameData, nextFrameData, interpolationValue)
+        if nextFrameData and interpolationValue > 0 and interpolationModule then
+            frameToApply = interpolationModule.interpolateFrames(currentFrameData, nextFrameData, interpolationValue)
         end
         
         if frameToApply.vel then
