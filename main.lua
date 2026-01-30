@@ -2,11 +2,11 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
 
-local recording = loadstring(game:HttpGet(baseURL .. "core/recording.lua"))()
-local playback = loadstring(game:HttpGet(baseURL .. "core/playback.lua"))()
-local storage = loadstring(game:HttpGet(baseURL .. "core/storage.lua"))()
-local marker = loadstring(game:HttpGet(baseURL .. "utils/marker.lua"))()
-local interpolation = loadstring(game:HttpGet(baseURL .. "utils/interpolation.lua"))()
+local recording = loadstring(game:HttpGet(baseURL .. "recording.lua"))()
+local playback = loadstring(game:HttpGet(baseURL .. "playback.lua"))()
+local storage = loadstring(game:HttpGet(baseURL .. "storage.lua"))()
+local marker = loadstring(game:HttpGet(baseURL .. "marker.lua"))()
+local interpolation = loadstring(game:HttpGet(baseURL .. "interpolation.lua"))()
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -201,7 +201,7 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
                         marker.destroyMarker()
                         playback.startPlayback(loadedTASData, HumanoidRootPart, Humanoid, workspace.CurrentCamera, notify, function()
                             marker.destroyMarker()
-                        end)
+                        end, interpolation)
                     else
                         notify("Erro", "Você deve estar no marcador verde", 2)
                     end
