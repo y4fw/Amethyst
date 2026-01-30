@@ -104,9 +104,10 @@ local function notify(title, content, duration)
     })
 end
 
-RecordTab:Paragraph({
+RecordTab:Section({
     Title = "Controles",
-    Desc = "Ative o modo de gravação, depois use E para iniciar e Q para parar."
+    Desc = "Ative o modo de gravação, depois use E para iniciar e Q para parar.",
+    TextSize = 14,
 })
 
 local RecordModeToggle = RecordTab:Toggle({
@@ -125,10 +126,14 @@ local RecordModeToggle = RecordTab:Toggle({
     end
 })
 
+RecordTab:Space()
+
 local FrameCounterParagraph = RecordTab:Paragraph({
     Title = "Status",
     Desc = "Frames Gravados: 0"
 })
+
+RecordTab:Space()
 
 local SaveFileNameInput = RecordTab:Input({
     Title = "Nome do Arquivo",
@@ -138,42 +143,47 @@ local SaveFileNameInput = RecordTab:Input({
     Callback = function(value) end
 })
 
+RecordTab:Space()
+
 RecordTab:Button({
     Title = "Salvar TAS",
     Desc = "Salvar gravação atual",
+    Icon = "lucide:save",
     Callback = function()
-        local fileName = SaveFileNameInput.Value
-        storage.saveTASToFile(fileName, recording.recordedFrames, notify)
+        storage.saveTASToFile(SaveFileNameInput.Value, recording.recordedFrames, notify)
     end
 })
 
-PlaybackTab:Paragraph({
+PlaybackTab:Section({
     Title = "Carregar TAS",
-    Desc = "Selecione um TAS salvo da lista abaixo para carregar."
+    Desc = "Selecione um TAS salvo da lista abaixo para carregar.",
+    TextSize = 14,
 })
 
 local TASFileDropdown = PlaybackTab:Dropdown({
     Title = "Selecionar TAS",
     Desc = "Escolha um TAS para reproduzir",
     Values = storage.getTASFileList(),
-    Value = {},
+    Value = nil,
     Multi = false,
     AllowNone = true,
-    Callback = function(option)
-        if option and #option > 0 then
-            local selectedFile = option[1]
-            local tasData = storage.loadTASFromFile(selectedFile, notify)
+    Callback = function(selectedValue)
+        if selectedValue and selectedValue ~= "" then
+            local tasData = storage.loadTASFromFile(selectedValue, notify)
             if tasData then
                 loadedTASData = tasData
-                selectedTASFileName = selectedFile
+                selectedTASFileName = selectedValue
             end
         end
     end
 })
 
+PlaybackTab:Space()
+
 PlaybackTab:Button({
     Title = "Atualizar Lista",
     Desc = "Atualizar lista de TAS salvos",
+    Icon = "lucide:refresh-cw",
     Callback = function()
         local updatedList = storage.getTASFileList()
         TASFileDropdown:Refresh(updatedList)
@@ -181,9 +191,12 @@ PlaybackTab:Button({
     end
 })
 
+PlaybackTab:Space()
+
 PlaybackTab:Button({
     Title = "Deletar TAS",
     Desc = "Deletar TAS selecionado",
+    Icon = "lucide:trash",
     Callback = function()
         if selectedTASFileName ~= "" then
             storage.deleteTASFile(selectedTASFileName, notify)
@@ -199,9 +212,10 @@ PlaybackTab:Button({
 
 PlaybackTab:Divider()
 
-PlaybackTab:Paragraph({
+PlaybackTab:Section({
     Title = "Reproduzir TAS",
-    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar."
+    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.",
+    TextSize = 14,
 })
 
 local PlaybackModeToggle = PlaybackTab:Toggle({
@@ -235,10 +249,13 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
     end
 })
 
-SettingsTab:Paragraph({
+SettingsTab:Section({
     Title = "Descrição",
-    Desc = "O melhor SCRIPT para Exércitos Brasileiros do Roblox!"
+    Desc = "O melhor SCRIPT para Exércitos Brasileiros do Roblox!",
+    TextSize = 16,
 })
+
+SettingsTab:Space()
 
 SettingsTab:Paragraph({
     Title = "Créditos",
