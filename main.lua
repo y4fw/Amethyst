@@ -2,11 +2,70 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
 
-local recording = loadstring(game:HttpGet(baseURL .. "recording.lua"))()
-local playback = loadstring(game:HttpGet(baseURL .. "playback.lua"))()
-local storage = loadstring(game:HttpGet(baseURL .. "storage.lua"))()
-local marker = loadstring(game:HttpGet(baseURL .. "marker.lua"))()
-local interpolation = loadstring(game:HttpGet(baseURL .. "interpolation.lua"))()
+print("=== Carregando Amethyst TAS ===")
+
+local function loadModule(name)
+    print("Carregando " .. name .. "...")
+    local url = baseURL .. name
+    print("URL: " .. url)
+    
+    local success, result = pcall(function()
+        return game:HttpGet(url)
+    end)
+    
+    if not success then
+        warn("ERRO ao baixar " .. name .. ": " .. tostring(result))
+        return nil
+    end
+    
+    if result == "" or result:match("404") then
+        warn("ERRO: Arquivo " .. name .. " não encontrado no GitHub!")
+        warn("Verifique se o arquivo existe em: " .. url)
+        return nil
+    end
+    
+    print("Arquivo baixado, compilando...")
+    local compiled, compileError = loadstring(result)
+    
+    if not compiled then
+        warn("ERRO ao compilar " .. name .. ": " .. tostring(compileError))
+        return nil
+    end
+    
+    print("Executando módulo...")
+    local executed, module = pcall(compiled)
+    
+    if not executed then
+        warn("ERRO ao executar " .. name .. ": " .. tostring(module))
+        return nil
+    end
+    
+    if module == nil then
+        warn("ERRO: " .. name .. " retornou nil!")
+        return nil
+    end
+    
+    print("✓ " .. name .. " carregado com sucesso!")
+    return module
+end
+
+local recording = loadModule("recording.lua")
+if not recording then error("Falha ao carregar recording.lua") end
+
+local playback = loadModule("playback.lua")
+if not playback then error("Falha ao carregar playback.lua") end
+
+local storage = loadModule("storage.lua")
+if not storage then error("Falha ao carregar storage.lua") end
+
+local marker = loadModule("marker.lua")
+if not marker then error("Falha ao carregar marker.lua") end
+
+local interpolation = loadModule("interpolation.lua")
+if not interpolation then error("Falha ao carregar interpolation.lua") end
+
+print("=== Todos os módulos carregados! ===")
+print("")
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
