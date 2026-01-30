@@ -2,12 +2,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
 
-print("=== Carregando Amethyst TAS ===")
-
 local function loadModule(name)
-    print("Carregando " .. name .. "...")
     local url = baseURL .. name
-    print("URL: " .. url)
     
     local success, result = pcall(function()
         return game:HttpGet(url)
@@ -32,7 +28,6 @@ local function loadModule(name)
         return nil
     end
     
-    print("Executando módulo...")
     local executed, module = pcall(compiled)
     
     if not executed then
@@ -44,28 +39,24 @@ local function loadModule(name)
         warn("ERRO: " .. name .. " retornou nil!")
         return nil
     end
-    
-    print("✓ " .. name .. " carregado com sucesso!")
+
     return module
 end
 
-local recording = loadModule("recording.lua")
+local recording = loadModule("core/recording.lua")
 if not recording then error("Falha ao carregar recording.lua") end
 
-local playback = loadModule("playback.lua")
+local playback = loadModule("core/playback.lua")
 if not playback then error("Falha ao carregar playback.lua") end
 
-local storage = loadModule("storage.lua")
+local storage = loadModule("core/storage.lua")
 if not storage then error("Falha ao carregar storage.lua") end
 
-local marker = loadModule("marker.lua")
+local marker = loadModule("utils/marker.lua")
 if not marker then error("Falha ao carregar marker.lua") end
 
-local interpolation = loadModule("interpolation.lua")
+local interpolation = loadModule("utils/interpolation.lua")
 if not interpolation then error("Falha ao carregar interpolation.lua") end
-
-print("=== Todos os módulos carregados! ===")
-print("")
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
