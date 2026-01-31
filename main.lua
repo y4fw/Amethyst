@@ -1,5 +1,3 @@
-local version = "v1.6.5"
-
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
@@ -66,6 +64,7 @@ local loadedTASData = nil
 local isRecordingModeEnabled = false
 local isPlaybackModeEnabled = false
 local selectedTASFileName = ""
+local version = "1.5.6"
 
 storage.initialize()
 
@@ -78,15 +77,22 @@ local Window = WindUI:CreateWindow({
     Theme = "Dark",
     Transparent = true,
     SideBarWidth = 200,
+    User = {
+        Enabled = true,
+        Anonymous = false,
+        Callback = function()
+            print("User icon clicked")
+        end,
+    },
 })
 
 Window:SetToggleKey(Enum.KeyCode.K)
 
 Window:Tag({
-    Title = version,
-    Icon = "lucide:rocket",
-    Color = Color3.fromHex("#f3f050"),
-    Radius = 10,
+    Title = "v" .. version,
+    Icon = "lucide:github",
+    Color = Color3.fromHex("#30ff6a"),
+    Radius = 0,
 })
 
 local RecordTab = Window:Tab({
