@@ -8,6 +8,54 @@ playback.playbackConnection = nil
 playback.playbackStartTimestamp = 0
 playback.savedAutoRotateValue = nil
 
+local function createParkour1Shortcut()
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(28.67, 11.45, 0.6)
+    part.Position = Vector3.new(218.23, 11.2, -856)
+    part.Orientation = Vector3.new(90, 0, 0)
+    part.Anchored = true
+    part.Transparency = 1
+    part:SetAttribute("ParkourShortcut", true)
+    part.Parent = workspace
+    
+    local part2 = Instance.new("Part")
+    part2.Size = Vector3.new(5.18, 15.6, 0.25)
+    part2.Position = Vector3.new(152.96, 7.37, -855.94)
+    part2.Orientation = Vector3.new(90, 0, 0)
+    part2.Anchored = true
+    part2.Transparency = 1
+    part2:SetAttribute("ParkourShortcut", true)
+    part2.Parent = workspace
+end
+
+local function createParkour2Shortcut()
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(56, 1, 2)
+    part.Position = Vector3.new(216.65, 52.3, -898.01)
+    part.Anchored = true
+    part.Transparency = 1
+    part:SetAttribute("ParkourShortcut", true)
+    part.Parent = workspace
+end
+
+local function createParkour3Shortcut()
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(52.54, 1, 1.2)
+    part.Position = Vector3.new(314.53, 10.25, -897.86)
+    part.Anchored = true
+    part.Transparency = 1
+    part:SetAttribute("ParkourShortcut", true)
+    part.Parent = workspace
+end
+
+local function removeParkours()
+    for _, v in ipairs(workspace:GetChildren()) do
+        if v:IsA("BasePart") and v:GetAttribute("ParkourShortcut") then
+            v:Destroy()
+        end
+    end
+end
+
 function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc, onComplete, interpolationModule)
     if not loadedTASData or #loadedTASData == 0 then
         notifyFunc("Erro", "Nenhum TAS carregado", 2)
@@ -17,6 +65,10 @@ function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc
     playback.isPlaying = true
     playback.currentFrameIndex = 1
     playback.playbackStartTimestamp = tick()
+    
+    createParkour1Shortcut()
+    createParkour2Shortcut()
+    createParkour3Shortcut()
     
     notifyFunc("Reprodução", "Reproduzindo TAS", 2)
     
@@ -43,6 +95,8 @@ function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc
             if playback.savedAutoRotateValue ~= nil then
                 humanoid.AutoRotate = playback.savedAutoRotateValue
             end
+            
+            removeParkours()
             
             notifyFunc("Reprodução", "Reprodução finalizada", 2)
             if onComplete then
@@ -158,6 +212,8 @@ function playback.stopPlayback(hrp, humanoid, notifyFunc, onComplete)
     if playback.savedAutoRotateValue ~= nil then
         humanoid.AutoRotate = playback.savedAutoRotateValue
     end
+    
+    removeParkours()
     
     if onComplete then
         onComplete()
