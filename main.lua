@@ -83,6 +83,9 @@ local Window = WindUI:CreateWindow({
     User = {
         Enabled = true,
         Anonymous = false,
+        Callback = function()
+            print("User icon clicked")
+        end,
     },
     KeySystem = {
         Key = { "amethyst" },
@@ -359,19 +362,23 @@ HitboxTab:Slider({
 
 HitboxTab:Space()
 
-HitboxTab:Keybind({
+local currentHitboxKey = "F"
+
+local HitboxKeybind = HitboxTab:Keybind({
     Title = "Tecla de Atalho",
     Desc = "Tecla para ativar/desativar rapidamente",
-    Value = "K",
+    Value = "F",
+    Callback = function(key)
+        currentHitboxKey = key
+    end
 })
 
 HitboxTab:Space()
 
-local HitboxKeybindConnection
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
-    if input.KeyCode == Enum.KeyCode.K then
+    if input.KeyCode == Enum.KeyCode[currentHitboxKey] then
         local currentState = hitbox.isEnabled
         HitboxToggle:Set(not currentState)
         hitbox.setEnabled(not currentState)
