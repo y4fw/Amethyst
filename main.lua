@@ -39,7 +39,7 @@ end
 local recording = loadModule("core/recording.lua")
 if not recording then error("[+] Falha ao carregar core/recording.lua") end
 
-local playback = loadModule("core/playback.lua")
+local playback = loadModule("core/playbackv2.lua")
 if not playback then error("[+] Falha ao carregar core/playback.lua") end
 
 local storage = loadModule("core/storage.lua")
@@ -54,10 +54,7 @@ if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua")
 local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 
-local autoclicker = loadModule("core/autoclicker.lua")
-if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
-
-local autoclicker = loadModule("core/autoclicker.lua")
+local autoclicker = loadModule("core/deltaautojjs.lua")
 if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
 
 local Players = game:GetService("Players")
