@@ -39,7 +39,7 @@ end
 local recording = loadModule("core/recording.lua")
 if not recording then error("[+] Falha ao carregar core/recording.lua") end
 
-local playback = loadModule("core/playback.lua")
+local playback = loadModule("core/playbackv2.lua")
 if not playback then error("[+] Falha ao carregar core/playback.lua") end
 
 local storage = loadModule("core/storage.lua")
