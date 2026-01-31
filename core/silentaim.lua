@@ -105,7 +105,7 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     local args = {...}
     local method = getnamecallmethod()
     
-    if silentaim.isEnabled and method == "FireServer" or method == "InvokeServer" then
+    if silentaim.isEnabled and (method == "FireServer" or method == "InvokeServer") then
         if self.Name == "ShootEvent" or self.Name == "DamageEvent" or self.Name == "HitEvent" then
             local target = silentaim.getTarget()
             
