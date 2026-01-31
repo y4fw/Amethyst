@@ -1,3 +1,6 @@
+--[[
+DEPRECATED: Using playbackv2.lua now. This is only BACKUP!
+
 local playback = {}
 
 local RunService = game:GetService("RunService")
@@ -159,3 +162,5 @@ function playback.stopPlayback(hrp, humanoid, notifyFunc, onComplete)
 end
 
 return playback
+
+]]--
