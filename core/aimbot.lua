@@ -13,11 +13,9 @@ aimbot.targetPart = "Head"
 aimbot.fov = 100
 aimbot.wallCheck = true
 aimbot.teamCheck = true
-aimbot.smoothness = 0.2
-aimbot.holdToAim = false
-aimbot.aimKey = Enum.UserInputType.MouseButton2
+aimbot.smoothness = 0.5
+aimbot.isAiming = false
 
-local isAiming = false
 local connection = nil
 
 local function getClosestPlayerInFOV()
@@ -75,6 +73,10 @@ local function aimAt(targetPart)
     Camera.CFrame = currentCFrame:Lerp(targetCFrame, aimbot.smoothness)
 end
 
+function aimbot.toggleAiming()
+    aimbot.isAiming = not aimbot.isAiming
+end
+
 function aimbot.setEnabled(enabled)
     aimbot.isEnabled = enabled
     
@@ -82,19 +84,10 @@ function aimbot.setEnabled(enabled)
         if connection then connection:Disconnect() end
         
         connection = RunService.RenderStepped:Connect(function()
-            if aimbot.holdToAim then
-                if isAiming then
-                    local target = getClosestPlayerInFOV()
-                    if target then
-                        aimAt(target)
-                    end
-                end
-            else
-                if aimbot.isEnabled then
-                    local target = getClosestPlayerInFOV()
-                    if target then
-                        aimAt(target)
-                    end
+            if aimbot.isEnabled and aimbot.isAiming then
+                local target = getClosestPlayerInFOV()
+                if target then
+                    aimAt(target)
                 end
             end
         end)
@@ -103,6 +96,7 @@ function aimbot.setEnabled(enabled)
             connection:Disconnect()
             connection = nil
         end
+        aimbot.isAiming = false
     end
 end
 
@@ -125,23 +119,5 @@ end
 function aimbot.setSmoothness(value)
     aimbot.smoothness = value
 end
-
-function aimbot.setHoldToAim(enabled)
-    aimbot.holdToAim = enabled
-end
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    
-    if input.UserInputType == aimbot.aimKey then
-        isAiming = true
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input, gameProcessed)
-    if input.UserInputType == aimbot.aimKey then
-        isAiming = false
-    end
-end)
 
 return aimbot

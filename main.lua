@@ -440,12 +440,12 @@ AimbotTab:Space()
 
 AimbotTab:Slider({
     Title = "Suavização",
-    Desc = "Quão suave é a mira (menor = mais suave)",
-    Step = 0.01,
+    Desc = "Quão suave é a mira (maior = mais rápido)",
+    Step = 0.05,
     Value = {
-        Min = 0.05,
+        Min = 0.1,
         Max = 1,
-        Default = 0.2,
+        Default = 0.5,
     },
     Callback = function(value)
         aimbot.setSmoothness(value)
@@ -491,14 +491,18 @@ AimbotTab:Toggle({
 
 AimbotTab:Space()
 
-AimbotTab:Toggle({
-    Title = "Segurar para Mirar",
-    Desc = "Só mira quando segura botão direito do mouse",
-    Value = false,
-    Callback = function(state)
-        aimbot.setHoldToAim(state)
+local currentAimbotKey = "E"
+
+local AimbotKeybind = AimbotTab:Keybind({
+    Title = "Tecla para Ativar/Desativar Mira",
+    Desc = "Pressione a tecla para começar/parar de mirar",
+    Value = "E",
+    Callback = function(key)
+        currentAimbotKey = key
     end
 })
+
+AimbotTab:Space()
 
 AutoJJSTab:Section({
     Title = "Configurações Auto JJS",
@@ -586,6 +590,17 @@ SettingsTab:Paragraph({
 
 UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
     if isProcessedByGame then return end
+    
+    if inputObject.KeyCode == Enum.KeyCode[currentAimbotKey] then
+        if aimbot.isEnabled and not isRecordingModeEnabled and not isPlaybackModeEnabled then
+            aimbot.toggleAiming()
+            if aimbot.isAiming then
+                notify("Aimbot", "Mira ativada", 1)
+            else
+                notify("Aimbot", "Mira desativada", 1)
+            end
+        end
+    end
     
     if inputObject.KeyCode == Enum.KeyCode.E then
         if isRecordingModeEnabled and not recording.isRecording then
