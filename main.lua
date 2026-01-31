@@ -57,8 +57,8 @@ if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 local silentaim = loadModule("core/silentaim.lua")
 if not silentaim then error("[+] Falha ao carregar core/silentaim.lua") end
 
-local autoclicker = loadModule("core/autoclicker.lua")
-if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
+local autoclicker = loadModule("core/deltaautojjs.lua")
+if not autoclicker then error("[+] Falha ao carregar core/deltaautojjs.lua") end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
