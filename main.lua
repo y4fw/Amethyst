@@ -36,31 +36,29 @@ local function loadModule(name)
     return module
 end
 
--- tas
 local recording = loadModule("core/recording.lua")
 if not recording then error("[+] Falha ao carregar core/recording.lua") end
 
 local playback = loadModule("core/playbackv2.lua")
 if not playback then error("[+] Falha ao carregar core/playbackv2.lua") end
 
-local marker = loadModule("utils/marker.lua")
-if not marker then error("[+] Falha ao carregar utils/marker.lua") end
-
--- armazenar
 local storage = loadModule("core/storage.lua")
 if not storage then error("[+] Falha ao carregar core/storage.lua") end
 
--- interpolação
+local marker = loadModule("utils/marker.lua")
+if not marker then error("[+] Falha ao carregar utils/marker.lua") end
+
 local interpolation = loadModule("utils/interpolation.lua")
 if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua") end
 
--- pvp
 local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 
--- eb do delta
-local autoclicker = loadModule("core/deltaautojjs.lua")
-if not autoclicker then error("[+] Falha ao carregar core/deltaautojjs.lua") end
+local silentaim = loadModule("core/silentaim.lua")
+if not silentaim then error("[+] Falha ao carregar core/silentaim.lua") end
+
+local autoclicker = loadModule("core/autoclicker.lua")
+if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -156,6 +154,11 @@ local CombatSection = Window:Section({
 local HitboxTab = CombatSection:Tab({
     Title = "Hitbox Expander",
     Icon = "lucide:box"
+})
+
+local SilentAimTab = CombatSection:Tab({
+    Title = "Silent Aim",
+    Icon = "lucide:crosshair"
 })
 
 local EBDoDeltaSection = Window:Section({
@@ -295,7 +298,7 @@ PlaybackTab:Divider()
 
 PlaybackTab:Section({
     Title = "Reproduzir TAS",
-    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar. (Dica: Se você quiser deixar mais difícil ainda de detectar, passe com algum item equipado!)",
+    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.",
     TextSize = 14,
 })
 
@@ -402,15 +405,83 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
+SilentAimTab:Section({
+    Title = "Configurações Silent Aim",
+    Desc = "Sistema de mira automática invisível.",
+    TextSize = 14,
+})
+
+local SilentAimToggle = SilentAimTab:Toggle({
+    Title = "Ativar Silent Aim",
+    Desc = "Ativar mira automática",
+    Value = false,
+    Callback = function(state)
+        silentaim.setEnabled(state)
+    end
+})
+
+SilentAimTab:Space()
+
+SilentAimTab:Dropdown({
+    Title = "Parte Alvo",
+    Desc = "Parte do corpo para mirar",
+    Values = {"Head", "HumanoidRootPart", "Torso"},
+    Value = "Head",
+    Multi = false,
+    AllowNone = false,
+    Callback = function(selectedValue)
+        if selectedValue then
+            silentaim.setTargetPart(selectedValue)
+        end
+    end
+})
+
+SilentAimTab:Space()
+
+SilentAimTab:Input({
+    Title = "FOV (Campo de Visão)",
+    Desc = "Área de detecção em pixels",
+    Value = "100",
+    Placeholder = "100",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            silentaim.setFOV(num)
+        end
+    end
+})
+
+SilentAimTab:Space()
+
+SilentAimTab:Toggle({
+    Title = "Verificar Parede",
+    Desc = "Não mirar através de paredes",
+    Value = true,
+    Callback = function(state)
+        silentaim.setWallCheck(state)
+    end
+})
+
+SilentAimTab:Space()
+
+SilentAimTab:Toggle({
+    Title = "Verificar Time",
+    Desc = "Ignorar jogadores do mesmo time",
+    Value = true,
+    Callback = function(state)
+        silentaim.setTeamCheck(state)
+    end
+})
+
 AutoJJSTab:Section({
     Title = "Configurações Auto JJS",
-    Desc = "Sistema de Auto'JJs pro EB Do Delta.",
+    Desc = "Automação para minigame de polichinelos.",
     TextSize = 14,
 })
 
 local AutoJJSToggle = AutoJJSTab:Toggle({
     Title = "Ativar Auto JJS",
-    Desc = "Ativa cliques automáticos.",
+    Desc = "Ativar cliques automáticos no minigame",
     Value = false,
     Callback = function(state)
         autoclicker.setEnabled(state, notify)
