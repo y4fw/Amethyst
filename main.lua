@@ -86,10 +86,8 @@ Window:Tag({
     Title = version,
     Icon = "lucide:rocket",
     Color = Color3.fromHex("#f3f050"),
-    Radius = 0,
+    Radius = 10,
 })
-
-Window.Icon:Enable()
 
 local RecordTab = Window:Tab({
     Title = "Gravar TAS",
