@@ -91,8 +91,8 @@ Window:SetToggleKey(Enum.KeyCode.K)
 Window:Tag({
     Title = "v" .. version,
     Icon = "lucide:github",
-    Color = Color3.fromHex("#30ff6a"),
-    Radius = 0,
+    Color = Color3.fromHex("#fcdb4a"),
+    Radius = 12,
 })
 
 local RecordTab = Window:Tab({
