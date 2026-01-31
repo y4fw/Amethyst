@@ -55,7 +55,7 @@ local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 
 local autoclicker = loadModule("core/deltaautojjs.lua")
-if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
+if not autoclicker then error("[+] Falha ao carregar core/deltaautojjs.lua") end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -425,49 +425,46 @@ local AdvancedModeToggle = AutoJJSTab:Toggle({
 
 AutoJJSTab:Space()
 
-AutoJJSTab:Slider({
+AutoJJSTab:Input({
     Title = "Delay Entre Cliques",
     Desc = "Intervalo entre cada clique (segundos)",
-    Step = 0.01,
-    Value = {
-        Min = 0.01,
-        Max = 1,
-        Default = 0.1,
-    },
+    Value = "0.1",
+    Placeholder = "0.1",
     Callback = function(value)
-        autoclicker.setDelay(value)
+        local num = tonumber(value)
+        if num and num >= 0.01 then
+            autoclicker.setDelay(num)
+        end
     end
 })
 
 AutoJJSTab:Space()
 
-AutoJJSTab:Slider({
+AutoJJSTab:Input({
     Title = "Cliques Alvo",
     Desc = "Quantidade de cliques desejada (modo avançado)",
-    Step = 10,
-    Value = {
-        Min = 100,
-        Max = 1000,
-        Default = 400,
-    },
+    Value = "400",
+    Placeholder = "400",
     Callback = function(value)
-        autoclicker.setTargetClicks(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            autoclicker.setTargetClicks(num)
+        end
     end
 })
 
 AutoJJSTab:Space()
 
-AutoJJSTab:Slider({
+AutoJJSTab:Input({
     Title = "Tempo Alvo (segundos)",
     Desc = "Tempo total desejado (modo avançado)",
-    Step = 10,
-    Value = {
-        Min = 60,
-        Max = 600,
-        Default = 420,
-    },
+    Value = "420",
+    Placeholder = "420",
     Callback = function(value)
-        autoclicker.setTargetTime(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            autoclicker.setTargetTime(num)
+        end
     end
 })
 
