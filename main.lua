@@ -54,8 +54,8 @@ if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua")
 local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 
-local silentaim = loadModule("core/silentaim.lua")
-if not silentaim then error("[+] Falha ao carregar core/silentaim.lua") end
+local silentaim = loadModule("core/SilentAim.lua")
+if not silentaim then error("[+] Falha ao carregar core/SilentAim.lua") end
 
 local autoclicker = loadModule("core/autoclicker.lua")
 if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
