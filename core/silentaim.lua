@@ -7,6 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
 
 silentaim.isEnabled = false
 silentaim.targetPart = "Head"
@@ -14,6 +15,9 @@ silentaim.fov = 100
 silentaim.wallCheck = true
 silentaim.teamCheck = true
 silentaim.visibleCheck = true
+silentaim.smoothness = 0.1
+
+local currentTarget = nil
 
 local function getClosestPlayerInFOV()
     local closestPlayer = nil
@@ -25,32 +29,30 @@ local function getClosestPlayerInFOV()
             local humanoid = character:FindFirstChildOfClass("Humanoid")
             
             if humanoid and humanoid.Health > 0 then
-                if silentaim.teamCheck and player.Team == LocalPlayer.Team then
-                    continue
-                end
-                
-                local targetPart = character:FindFirstChild(silentaim.targetPart) or character:FindFirstChild("HumanoidRootPart")
-                
-                if targetPart then
-                    local screenPosition, onScreen = Camera:WorldToScreenPoint(targetPart.Position)
+                if not (silentaim.teamCheck and player.Team == LocalPlayer.Team) then
+                    local targetPart = character:FindFirstChild(silentaim.targetPart) or character:FindFirstChild("HumanoidRootPart")
                     
-                    if onScreen then
-                        local mousePosition = UserInputService:GetMouseLocation()
-                        local screenPos2D = Vector2.new(screenPosition.X, screenPosition.Y)
-                        local distance = (mousePosition - screenPos2D).Magnitude
+                    if targetPart then
+                        local screenPosition, onScreen = Camera:WorldToScreenPoint(targetPart.Position)
                         
-                        if distance < shortestDistance then
-                            if silentaim.wallCheck then
-                                local ray = Ray.new(Camera.CFrame.Position, (targetPart.Position - Camera.CFrame.Position).Unit * (targetPart.Position - Camera.CFrame.Position).Magnitude)
-                                local part, position = Workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, character})
-                                
-                                if not part then
+                        if onScreen then
+                            local mousePos = UserInputService:GetMouseLocation()
+                            local screenPos2D = Vector2.new(screenPosition.X, screenPosition.Y)
+                            local distance = (mousePos - screenPos2D).Magnitude
+                            
+                            if distance < shortestDistance then
+                                if silentaim.wallCheck then
+                                    local ray = Ray.new(Camera.CFrame.Position, (targetPart.Position - Camera.CFrame.Position).Unit * (targetPart.Position - Camera.CFrame.Position).Magnitude)
+                                    local part, position = Workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, character})
+                                    
+                                    if not part then
+                                        closestPlayer = player
+                                        shortestDistance = distance
+                                    end
+                                else
                                     closestPlayer = player
                                     shortestDistance = distance
                                 end
-                            else
-                                closestPlayer = player
-                                shortestDistance = distance
                             end
                         end
                     end
@@ -77,6 +79,14 @@ function silentaim.getTarget()
     return nil
 end
 
+function silentaim.getTargetPosition()
+    local target = silentaim.getTarget()
+    if target then
+        return target.Position
+    end
+    return nil
+end
+
 function silentaim.setEnabled(enabled)
     silentaim.isEnabled = enabled
 end
@@ -99,6 +109,10 @@ end
 
 function silentaim.setVisibleCheck(enabled)
     silentaim.visibleCheck = enabled
+end
+
+function silentaim.setSmoothness(value)
+    silentaim.smoothness = value
 end
 
 return silentaim
