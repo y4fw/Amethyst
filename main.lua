@@ -290,7 +290,7 @@ PlaybackTab:Divider()
 
 PlaybackTab:Section({
     Title = "Reproduzir TAS",
-    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.",
+    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar. (Dica: Se você quiser deixar mais difícil ainda de detectar, passe com algum item equipado!)",
     TextSize = 14,
 })
 
@@ -399,13 +399,13 @@ end)
 
 AutoJJSTab:Section({
     Title = "Configurações Auto JJS",
-    Desc = "Automação para minigame de polichinelos.",
+    Desc = "Sistema de Auto'JJs pro EB Do Delta.",
     TextSize = 14,
 })
 
 local AutoJJSToggle = AutoJJSTab:Toggle({
     Title = "Ativar Auto JJS",
-    Desc = "Ativar cliques automáticos no minigame",
+    Desc = "Ativa cliques automáticos.",
     Value = false,
     Callback = function(state)
         autoclicker.setEnabled(state, notify)
