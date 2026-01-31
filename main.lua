@@ -39,7 +39,7 @@ end
 local recording = loadModule("core/recording.lua")
 if not recording then error("[+] Falha ao carregar core/recording.lua") end
 
-local playback = loadModule("core/playbackv2.lua")
+local playback = loadModule("core/playback.lua")
 if not playback then error("[+] Falha ao carregar core/playback.lua") end
 
 local storage = loadModule("core/storage.lua")
@@ -53,6 +53,12 @@ if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua")
 
 local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
+
+local autoclicker = loadModule("core/autoclicker.lua")
+if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
+
+local autoclicker = loadModule("core/autoclicker.lua")
+if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -148,6 +154,15 @@ local CombatSection = Window:Section({
 local HitboxTab = CombatSection:Tab({
     Title = "Hitbox Expander",
     Icon = "lucide:box"
+})
+
+local EBDoDeltaSection = Window:Section({
+    Title = "EB Do Delta",
+})
+
+local AutoJJSTab = EBDoDeltaSection:Tab({
+    Title = "Auto JJS",
+    Icon = "lucide:zap"
 })
 
 local SettingsSection = Window:Section({
@@ -384,6 +399,80 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         hitbox.setEnabled(not currentState)
     end
 end)
+
+AutoJJSTab:Section({
+    Title = "Configurações Auto JJS",
+    Desc = "Automação para minigame de polichinelos.",
+    TextSize = 14,
+})
+
+local AutoJJSToggle = AutoJJSTab:Toggle({
+    Title = "Ativar Auto JJS",
+    Desc = "Ativar cliques automáticos no minigame",
+    Value = false,
+    Callback = function(state)
+        autoclicker.setEnabled(state, notify)
+    end
+})
+
+AutoJJSTab:Space()
+
+local AdvancedModeToggle = AutoJJSTab:Toggle({
+    Title = "Modo Avançado",
+    Desc = "Calcular delay automaticamente baseado em cliques/tempo",
+    Value = false,
+    Callback = function(state)
+        autoclicker.setAdvancedMode(state)
+    end
+})
+
+AutoJJSTab:Space()
+
+AutoJJSTab:Slider({
+    Title = "Delay Entre Cliques",
+    Desc = "Intervalo entre cada clique (segundos)",
+    Step = 0.01,
+    Value = {
+        Min = 0.01,
+        Max = 1,
+        Default = 0.1,
+    },
+    Callback = function(value)
+        autoclicker.setDelay(value)
+    end
+})
+
+AutoJJSTab:Space()
+
+AutoJJSTab:Slider({
+    Title = "Cliques Alvo",
+    Desc = "Quantidade de cliques desejada (modo avançado)",
+    Step = 10,
+    Value = {
+        Min = 100,
+        Max = 1000,
+        Default = 400,
+    },
+    Callback = function(value)
+        autoclicker.setTargetClicks(value)
+    end
+})
+
+AutoJJSTab:Space()
+
+AutoJJSTab:Slider({
+    Title = "Tempo Alvo (segundos)",
+    Desc = "Tempo total desejado (modo avançado)",
+    Step = 10,
+    Value = {
+        Min = 60,
+        Max = 600,
+        Default = 420,
+    },
+    Callback = function(value)
+        autoclicker.setTargetTime(value)
+    end
+})
 
 SettingsTab:Section({
     Title = "Descrição",
