@@ -36,24 +36,29 @@ local function loadModule(name)
     return module
 end
 
+-- tas
 local recording = loadModule("core/recording.lua")
 if not recording then error("[+] Falha ao carregar core/recording.lua") end
 
 local playback = loadModule("core/playbackv2.lua")
 if not playback then error("[+] Falha ao carregar core/playbackv2.lua") end
 
-local storage = loadModule("core/storage.lua")
-if not storage then error("[+] Falha ao carregar core/storage.lua") end
-
 local marker = loadModule("utils/marker.lua")
 if not marker then error("[+] Falha ao carregar utils/marker.lua") end
 
+-- armazenar
+local storage = loadModule("core/storage.lua")
+if not storage then error("[+] Falha ao carregar core/storage.lua") end
+
+-- interpolação
 local interpolation = loadModule("utils/interpolation.lua")
 if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua") end
 
+-- pvp
 local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 
+-- eb do delta
 local autoclicker = loadModule("core/deltaautojjs.lua")
 if not autoclicker then error("[+] Falha ao carregar core/deltaautojjs.lua") end
 
