@@ -90,8 +90,15 @@ Window:SetToggleKey(Enum.KeyCode.K)
 
 Window:Tag({
     Title = "v" .. version,
-    Icon = "lucide:github",
-    Color = Color3.fromHex("#fcdb4a"),
+    Icon = "lucide:rocket",
+    Color = Color3.fromHex("#fccd4a"),
+    Radius = 12,
+})
+
+Window:Tag({
+    Title = "y4fw",
+    Icon = "lucide:rocket",
+    Color = Color3.fromHex("#ff3535"),
     Radius = 12,
 })
 
