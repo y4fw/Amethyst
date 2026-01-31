@@ -3,6 +3,7 @@ local silentaim = {}
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
@@ -34,7 +35,7 @@ local function getClosestPlayerInFOV()
                     local screenPosition, onScreen = Camera:WorldToScreenPoint(targetPart.Position)
                     
                     if onScreen then
-                        local mousePosition = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+                        local mousePosition = UserInputService:GetMouseLocation()
                         local screenPos2D = Vector2.new(screenPosition.X, screenPosition.Y)
                         local distance = (mousePosition - screenPos2D).Magnitude
                         
@@ -99,24 +100,5 @@ end
 function silentaim.setVisibleCheck(enabled)
     silentaim.visibleCheck = enabled
 end
-
-local oldNamecall
-oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-    local args = {...}
-    local method = getnamecallmethod()
-    
-    if silentaim.isEnabled and (method == "FireServer" or method == "InvokeServer") then
-        if self.Name == "ShootEvent" or self.Name == "DamageEvent" or self.Name == "HitEvent" then
-            local target = silentaim.getTarget()
-            
-            if target then
-                args[1] = target.Position
-                return oldNamecall(self, unpack(args))
-            end
-        end
-    end
-    
-    return oldNamecall(self, ...)
-end)
 
 return silentaim
