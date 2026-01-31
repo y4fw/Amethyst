@@ -83,9 +83,6 @@ local Window = WindUI:CreateWindow({
     User = {
         Enabled = true,
         Anonymous = false,
-        Callback = function()
-            print("User icon clicked")
-        end,
     },
     KeySystem = {
         Key = { "amethyst" },
@@ -117,20 +114,18 @@ local PingTag = Window:Tag({
     Radius = 12,
 })
 
-RunService.Heartbeat:Connect(function()
-    local fps = math.floor(1 / RunService.Heartbeat:Wait())
-    FPSTag:Set(fps .. " FPS")
-end)
-
 task.spawn(function()
-    while task.wait(1) do
+    while task.wait(0.5) do
+        local fps = math.floor(1 / RunService.Heartbeat:Wait())
+        FPSTag:SetTitle(fps .. " FPS")
+        
         local ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-        PingTag:Set(ping .. " ms")
+        PingTag:SetTitle(ping .. " ms")
     end
 end)
 
 local TASSection = Window:Section({
-    Title = "Parkours",
+    Title = "TAS",
 })
 
 local RecordTab = TASSection:Tab({
@@ -144,7 +139,7 @@ local PlaybackTab = TASSection:Tab({
 })
 
 local CombatSection = Window:Section({
-    Title = "PvP",
+    Title = "Combate",
 })
 
 local HitboxTab = CombatSection:Tab({
@@ -337,7 +332,7 @@ HitboxTab:Slider({
     Desc = "Ajustar o tamanho da hitbox expandida",
     Step = 0.5,
     Value = {
-        Min = 3,
+        Min = 6,
         Max = 15,
         Default = 12,
     },
@@ -361,6 +356,27 @@ HitboxTab:Slider({
         hitbox.setTransparency(value)
     end
 })
+
+HitboxTab:Space()
+
+HitboxTab:Keybind({
+    Title = "Tecla de Atalho",
+    Desc = "Tecla para ativar/desativar rapidamente",
+    Value = "K",
+})
+
+HitboxTab:Space()
+
+local HitboxKeybindConnection
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.K then
+        local currentState = hitbox.isEnabled
+        HitboxToggle:Set(not currentState)
+        hitbox.setEnabled(not currentState)
+    end
+end)
 
 SettingsTab:Section({
     Title = "Descrição",
