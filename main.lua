@@ -54,11 +54,11 @@ if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua")
 local hitbox = loadModule("core/hitbox.lua")
 if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 
-local silentaim = loadModule("core/silentaim.lua")
-if not silentaim then error("[+] Falha ao carregar core/silentaim.lua") end
+local aimbot = loadModule("core/aimbot.lua")
+if not aimbot then error("[+] Falha ao carregar core/aimbot.lua") end
 
-local autoclicker = loadModule("core/deltaautojjs.lua")
-if not autoclicker then error("[+] Falha ao carregar core/deltaautojjs.lua") end
+local autoclicker = loadModule("core/autoclicker.lua")
+if not autoclicker then error("[+] Falha ao carregar core/autoclicker.lua") end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -73,7 +73,7 @@ local loadedTASData = nil
 local isRecordingModeEnabled = false
 local isPlaybackModeEnabled = false
 local selectedTASFileName = ""
-local version = "1.5.6"
+local version = "1.5.7"
 
 storage.initialize()
 
@@ -156,9 +156,9 @@ local HitboxTab = CombatSection:Tab({
     Icon = "lucide:box"
 })
 
-local SilentAimTab = CombatSection:Tab({
-    Title = "Silent Aim",
-    Icon = "lucide:crosshair"
+local AimbotTab = CombatSection:Tab({
+    Title = "Aimbot",
+    Icon = "lucide:target"
 })
 
 local EBDoDeltaSection = Window:Section({
@@ -405,24 +405,24 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-SilentAimTab:Section({
-    Title = "Configurações Silent Aim",
-    Desc = "Sistema de mira automática invisível.",
+AimbotTab:Section({
+    Title = "Configurações Aimbot",
+    Desc = "Sistema de mira automática que move a câmera.",
     TextSize = 14,
 })
 
-local SilentAimToggle = SilentAimTab:Toggle({
-    Title = "Ativar Silent Aim",
+local AimbotToggle = AimbotTab:Toggle({
+    Title = "Ativar Aimbot",
     Desc = "Ativar mira automática",
     Value = false,
     Callback = function(state)
-        silentaim.setEnabled(state)
+        aimbot.setEnabled(state)
     end
 })
 
-SilentAimTab:Space()
+AimbotTab:Space()
 
-SilentAimTab:Dropdown({
+AimbotTab:Dropdown({
     Title = "Parte Alvo",
     Desc = "Parte do corpo para mirar",
     Values = {"Head", "HumanoidRootPart", "Torso"},
@@ -431,14 +431,30 @@ SilentAimTab:Dropdown({
     AllowNone = false,
     Callback = function(selectedValue)
         if selectedValue then
-            silentaim.setTargetPart(selectedValue)
+            aimbot.setTargetPart(selectedValue)
         end
     end
 })
 
-SilentAimTab:Space()
+AimbotTab:Space()
 
-SilentAimTab:Input({
+AimbotTab:Slider({
+    Title = "Suavização",
+    Desc = "Quão suave é a mira (menor = mais suave)",
+    Step = 0.01,
+    Value = {
+        Min = 0.05,
+        Max = 1,
+        Default = 0.2,
+    },
+    Callback = function(value)
+        aimbot.setSmoothness(value)
+    end
+})
+
+AimbotTab:Space()
+
+AimbotTab:Input({
     Title = "FOV (Campo de Visão)",
     Desc = "Área de detecção em pixels",
     Value = "100",
@@ -446,30 +462,41 @@ SilentAimTab:Input({
     Callback = function(value)
         local num = tonumber(value)
         if num and num > 0 then
-            silentaim.setFOV(num)
+            aimbot.setFOV(num)
         end
     end
 })
 
-SilentAimTab:Space()
+AimbotTab:Space()
 
-SilentAimTab:Toggle({
+AimbotTab:Toggle({
     Title = "Verificar Parede",
     Desc = "Não mirar através de paredes",
     Value = true,
     Callback = function(state)
-        silentaim.setWallCheck(state)
+        aimbot.setWallCheck(state)
     end
 })
 
-SilentAimTab:Space()
+AimbotTab:Space()
 
-SilentAimTab:Toggle({
+AimbotTab:Toggle({
     Title = "Verificar Time",
     Desc = "Ignorar jogadores do mesmo time",
     Value = true,
     Callback = function(state)
-        silentaim.setTeamCheck(state)
+        aimbot.setTeamCheck(state)
+    end
+})
+
+AimbotTab:Space()
+
+AimbotTab:Toggle({
+    Title = "Segurar para Mirar",
+    Desc = "Só mira quando segura botão direito do mouse",
+    Value = false,
+    Callback = function(state)
+        aimbot.setHoldToAim(state)
     end
 })
 
