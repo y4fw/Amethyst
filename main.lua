@@ -95,24 +95,51 @@ Window:Tag({
     Radius = 12,
 })
 
-Window:Tag({
-    Title = "y4fw",
-    Icon = "lucide:rocket",
-    Color = Color3.fromHex("#ff3535"),
+local FPSTag = Window:Tag({
+    Title = "0 FPS",
+    Icon = "lucide:gauge",
+    Color = Color3.fromHex("#00ff00"),
     Radius = 12,
 })
 
-local RecordTab = Window:Tab({
+local PingTag = Window:Tag({
+    Title = "0 ms",
+    Icon = "lucide:wifi",
+    Color = Color3.fromHex("#ff9500"),
+    Radius = 12,
+})
+
+RunService.Heartbeat:Connect(function()
+    local fps = math.floor(1 / RunService.Heartbeat:Wait())
+    FPSTag:Set(fps .. " FPS")
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        local ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+        PingTag:Set(ping .. " ms")
+    end
+end)
+
+local TASSection = Window:Section({
+    Title = "TAS",
+})
+
+local RecordTab = TASSection:Tab({
     Title = "Gravar TAS",
     Icon = "lucide:circle-dot"
 })
 
-local PlaybackTab = Window:Tab({
+local PlaybackTab = TASSection:Tab({
     Title = "Reproduzir TAS",
     Icon = "lucide:play"
 })
 
-local SettingsTab = Window:Tab({
+local SettingsSection = Window:Section({
+    Title = "Configurações",
+})
+
+local SettingsTab = SettingsSection:Tab({
     Title = "Configurações",
     Icon = "lucide:settings"
 })
