@@ -51,6 +51,9 @@ if not marker then error("[+] Falha ao carregar utils/marker.lua") end
 local interpolation = loadModule("utils/interpolation.lua")
 if not interpolation then error("[+] Falha ao carregar utils/interpolation.lua") end
 
+local hitbox = loadModule("core/hitbox.lua")
+if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -127,7 +130,7 @@ task.spawn(function()
 end)
 
 local TASSection = Window:Section({
-    Title = "TAS",
+    Title = "Parkours",
 })
 
 local RecordTab = TASSection:Tab({
@@ -138,6 +141,15 @@ local RecordTab = TASSection:Tab({
 local PlaybackTab = TASSection:Tab({
     Title = "Reproduzir TAS",
     Icon = "lucide:play"
+})
+
+local CombatSection = Window:Section({
+    Title = "PvP",
+})
+
+local HitboxTab = CombatSection:Tab({
+    Title = "Hitbox Expander",
+    Icon = "lucide:box"
 })
 
 local SettingsSection = Window:Section({
@@ -300,6 +312,53 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
             end
             marker.destroyMarker()
         end
+    end
+})
+
+HitboxTab:Section({
+    Title = "Configurações de Hitbox",
+    Desc = "Ajuste o tamanho e transparência da hitbox dos inimigos.",
+    TextSize = 14,
+})
+
+local HitboxToggle = HitboxTab:Toggle({
+    Title = "Ativar Hitbox Expander",
+    Desc = "Expandir hitbox dos inimigos",
+    Value = false,
+    Callback = function(state)
+        hitbox.setEnabled(state)
+    end
+})
+
+HitboxTab:Space()
+
+HitboxTab:Slider({
+    Title = "Tamanho da Hitbox",
+    Desc = "Ajustar o tamanho da hitbox expandida",
+    Step = 0.5,
+    Value = {
+        Min = 6,
+        Max = 15,
+        Default = 12,
+    },
+    Callback = function(value)
+        hitbox.setSize(value)
+    end
+})
+
+HitboxTab:Space()
+
+HitboxTab:Slider({
+    Title = "Transparência",
+    Desc = "Ajustar a transparência da hitbox (0 = opaco, 1 = invisível)",
+    Step = 0.01,
+    Value = {
+        Min = 0,
+        Max = 1,
+        Default = 0.99,
+    },
+    Callback = function(value)
+        hitbox.setTransparency(value)
     end
 })
 
