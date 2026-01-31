@@ -84,6 +84,11 @@ local Window = WindUI:CreateWindow({
             print("User icon clicked")
         end,
     },
+    KeySystem = {
+        Key = { "amethyst" },
+        Note = "Digite a key para acessar o Amethyst",
+        SaveKey = true,
+    },
 })
 
 Window:SetToggleKey(Enum.KeyCode.K)
