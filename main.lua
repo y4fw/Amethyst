@@ -382,12 +382,58 @@ HitboxTab:Slider({
 
 HitboxTab:Space()
 
-local currentHitboxKey = "F"
+HitboxTab:Toggle({
+    Title = "Verificar Parede",
+    Desc = "Não expandir hitbox através de paredes",
+    Value = true,
+    Callback = function(state)
+        hitbox.setWallCheck(state)
+    end
+})
+
+HitboxTab:Space()
+
+HitboxTab:Toggle({
+    Title = "Verificar Campo de Visão",
+    Desc = "Só expandir hitbox de jogadores visíveis na tela",
+    Value = true,
+    Callback = function(state)
+        hitbox.setFOVCheck(state)
+    end
+})
+
+HitboxTab:Space()
+
+HitboxTab:Input({
+    Title = "Raio do Campo de Visão",
+    Desc = "Distância em pixels do centro da tela",
+    Value = "500",
+    Placeholder = "500",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            hitbox.setFOVRadius(num)
+        end
+    end
+})
+
+HitboxTab:Space()
+
+HitboxTab:Toggle({
+    Title = "Verificar Time",
+    Desc = "Ignorar jogadores do mesmo time",
+    Value = true,
+    Callback = function(state)
+        hitbox.setTeamCheck(state)
+    end
+})
+
+local currentHitboxKey = "P"
 
 local HitboxKeybind = HitboxTab:Keybind({
     Title = "Tecla de Atalho",
     Desc = "Tecla para ativar/desativar rapidamente",
-    Value = "F",
+    Value = "P",
     Callback = function(key)
         currentHitboxKey = key
     end
