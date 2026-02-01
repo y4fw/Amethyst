@@ -5,18 +5,32 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 hitbox.isEnabled = false
-hitbox.headSize = 8
+hitbox.headSize = 6.0
+hitbox.torsoSize = 7.0
 hitbox.transparency = 1
 hitbox.renderConnection = nil
 
--- Checkers
 hitbox.wallCheck = true
 hitbox.fovCheck = true
 hitbox.teamCheck = true
-hitbox.fovRadius = 500
+hitbox.fovRadius = 150
+hitbox.targetPart = "Head"
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
+
+local originalSizes = {}
+
+local function getOriginalSize(partName)
+    if partName == "Head" then
+        return Vector3.new(1.2, 1.2, 1.2)
+    elseif partName == "UpperTorso" or partName == "Torso" then
+        return Vector3.new(2, 2, 1)
+    elseif partName == "HumanoidRootPart" then
+        return Vector3.new(2, 2, 1)
+    end
+    return Vector3.new(2, 2, 1)
+end
 
 local function isPlayerBehindWall(player)
     if not hitbox.wallCheck then return false end
@@ -25,8 +39,8 @@ local function isPlayerBehindWall(player)
         local character = player.Character
         if not character then return true end
         
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return true end
+        local targetPart = character:FindFirstChild(hitbox.targetPart)
+        if not targetPart then return true end
         
         local localChar = LocalPlayer.Character
         if not localChar then return true end
@@ -36,7 +50,7 @@ local function isPlayerBehindWall(player)
         
         local ray = Ray.new(
             localHRP.Position,
-            (hrp.Position - localHRP.Position).Unit * (hrp.Position - localHRP.Position).Magnitude
+            (targetPart.Position - localHRP.Position).Unit * (targetPart.Position - localHRP.Position).Magnitude
         )
         
         local ignoreList = {localChar, character}
@@ -60,10 +74,10 @@ local function isPlayerInFOV(player)
         local character = player.Character
         if not character then return false end
         
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return false end
+        local targetPart = character:FindFirstChild(hitbox.targetPart)
+        if not targetPart then return false end
         
-        local screenPoint, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+        local screenPoint, onScreen = Camera:WorldToViewportPoint(targetPart.Position)
         
         if not onScreen then return false end
         
@@ -117,6 +131,42 @@ local function shouldExpandHitbox(player)
     return true
 end
 
+local function resetPlayerHitbox(character, partName)
+    if not character then return end
+    
+    local part = character:FindFirstChild(partName)
+    if part then
+        local originalSize = getOriginalSize(partName)
+        part.Size = originalSize
+        part.Transparency = (partName == "HumanoidRootPart") and 1 or 0
+        part.CanCollide = false
+        part.Massless = true
+        
+        if part:IsA("MeshPart") or part:FindFirstChildOfClass("SpecialMesh") then
+            part.Transparency = 0
+        end
+    end
+end
+
+local function expandPlayerHitbox(character, partName)
+    if not character then return end
+    
+    local part = character:FindFirstChild(partName)
+    if part then
+        local expandedSize
+        if partName == "Head" then
+            expandedSize = Vector3.new(hitbox.headSize, hitbox.headSize, hitbox.headSize)
+        else
+            expandedSize = Vector3.new(hitbox.torsoSize, hitbox.torsoSize, hitbox.torsoSize)
+        end
+        
+        part.Size = expandedSize
+        part.Transparency = hitbox.transparency
+        part.CanCollide = false
+        part.Massless = true
+    end
+end
+
 function hitbox.setEnabled(enabled)
     hitbox.isEnabled = enabled
     
@@ -131,14 +181,10 @@ function hitbox.setEnabled(enabled)
                 pcall(function()
                     local character = player.Character
                     if character then
-                        local hrp = character:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            hrp.Size = Vector3.new(2, 2, 1)
-                            hrp.Transparency = 1
-                            hrp.CanCollide = false
-                            hrp.Material = Enum.Material.Plastic
-                            hrp.BrickColor = BrickColor.new("Medium stone grey")
-                        end
+                        resetPlayerHitbox(character, "Head")
+                        resetPlayerHitbox(character, "Torso")
+                        resetPlayerHitbox(character, "UpperTorso")
+                        resetPlayerHitbox(character, "HumanoidRootPart")
                     end
                 end)
             end
@@ -155,21 +201,24 @@ function hitbox.setEnabled(enabled)
                         pcall(function()
                             local character = player.Character
                             if character then
-                                local hrp = character:FindFirstChild("HumanoidRootPart")
-                                if hrp then
-                                    if shouldExpandHitbox(player) then
-                                        hrp.Size = Vector3.new(hitbox.headSize, hitbox.headSize, hitbox.headSize)
-                                        hrp.Transparency = hitbox.transparency
-                                        hrp.BrickColor = BrickColor.new("Really red")
-                                        hrp.Material = Enum.Material.Neon
-                                        hrp.CanCollide = false
-                                    else
-                                        hrp.Size = Vector3.new(2, 2, 1)
-                                        hrp.Transparency = 1
-                                        hrp.CanCollide = false
-                                        hrp.Material = Enum.Material.Plastic
-                                        hrp.BrickColor = BrickColor.new("Medium stone grey")
+                                if shouldExpandHitbox(player) then
+                                    expandPlayerHitbox(character, hitbox.targetPart)
+                                    
+                                    if hitbox.targetPart ~= "Head" then
+                                        resetPlayerHitbox(character, "Head")
                                     end
+                                    if hitbox.targetPart ~= "Torso" and hitbox.targetPart ~= "UpperTorso" then
+                                        resetPlayerHitbox(character, "Torso")
+                                        resetPlayerHitbox(character, "UpperTorso")
+                                    end
+                                    if hitbox.targetPart ~= "HumanoidRootPart" then
+                                        resetPlayerHitbox(character, "HumanoidRootPart")
+                                    end
+                                else
+                                    resetPlayerHitbox(character, "Head")
+                                    resetPlayerHitbox(character, "Torso")
+                                    resetPlayerHitbox(character, "UpperTorso")
+                                    resetPlayerHitbox(character, "HumanoidRootPart")
                                 end
                             end
                         end)
@@ -182,6 +231,7 @@ end
 
 function hitbox.setSize(size)
     hitbox.headSize = size
+    hitbox.torsoSize = size + 1
 end
 
 function hitbox.setTransparency(transparency)
@@ -202,6 +252,24 @@ end
 
 function hitbox.setFOVRadius(radius)
     hitbox.fovRadius = radius
+end
+
+function hitbox.setTargetPart(partName)
+    hitbox.targetPart = partName
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name ~= LocalPlayer.Name then
+            pcall(function()
+                local character = player.Character
+                if character then
+                    resetPlayerHitbox(character, "Head")
+                    resetPlayerHitbox(character, "Torso")
+                    resetPlayerHitbox(character, "UpperTorso")
+                    resetPlayerHitbox(character, "HumanoidRootPart")
+                end
+            end)
+        end
+    end
 end
 
 return hitbox
