@@ -355,9 +355,9 @@ HitboxTab:Slider({
     Desc = "Ajustar o tamanho da hitbox expandida",
     Step = 0.5,
     Value = {
-        Min = 6,
+        Min = 3,
         Max = 15,
-        Default = 12,
+        Default = 4,
     },
     Callback = function(value)
         hitbox.setSize(value)
