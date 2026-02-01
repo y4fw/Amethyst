@@ -9,11 +9,10 @@ hitbox.headSize = 12
 hitbox.transparency = 0.99
 hitbox.renderConnection = nil
 
--- Checkers
-hitbox.wallCheck = true
-hitbox.fovCheck = true
+hitbox.wallCheck = false
+hitbox.fovCheck = false
 hitbox.teamCheck = true
-hitbox.fovRadius = 500
+hitbox.fovRadius = 800
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
@@ -34,22 +33,32 @@ local function isPlayerBehindWall(player)
         local localHRP = localChar:FindFirstChild("HumanoidRootPart")
         if not localHRP then return true end
         
-        local ray = Ray.new(
-            localHRP.Position,
-            (hrp.Position - localHRP.Position).Unit * (hrp.Position - localHRP.Position).Magnitude
-        )
+        local direction = (hrp.Position - localHRP.Position)
+        local ray = Ray.new(localHRP.Position, direction.Unit * direction.Magnitude)
         
         local ignoreList = {localChar, character}
+        
+        for _, v in pairs(Workspace:GetDescendants()) do
+            if v:IsA("BasePart") then
+                if v.Transparency >= 0.9 or not v.CanCollide then
+                    table.insert(ignoreList, v)
+                end
+            end
+        end
+        
         local hit, position = Workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
         
         if hit then
+            if hit:IsDescendantOf(character) then
+                return false
+            end
             return true
         end
         
         return false
     end)
     
-    if not success then return true end
+    if not success then return false end
     return result
 end
 
@@ -78,7 +87,7 @@ local function isPlayerInFOV(player)
         return distance <= hitbox.fovRadius
     end)
     
-    if not success then return false end
+    if not success then return true end
     return result
 end
 
@@ -161,8 +170,9 @@ function hitbox.setEnabled(enabled)
                                         hrp.Size = Vector3.new(hitbox.headSize, hitbox.headSize, hitbox.headSize)
                                         hrp.Transparency = hitbox.transparency
                                         hrp.BrickColor = BrickColor.new("Really red")
-                                        hrp.Material = Enum.Material.Neon
+                                        hrp.Material = Enum.Material.ForceField
                                         hrp.CanCollide = false
+                                        hrp.Massless = true
                                     else
                                         hrp.Size = Vector3.new(2, 2, 1)
                                         hrp.Transparency = 1
