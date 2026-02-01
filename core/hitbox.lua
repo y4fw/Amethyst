@@ -5,8 +5,8 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 hitbox.isEnabled = false
-hitbox.headSize = 12
-hitbox.transparency = 0.99
+hitbox.headSize = 8
+hitbox.transparency = 1
 hitbox.renderConnection = nil
 
 -- Checkers
