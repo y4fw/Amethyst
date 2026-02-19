@@ -75,6 +75,9 @@ local isPlaybackModeEnabled = false
 local selectedTASFileName = ""
 local version = "1.5.7"
 
+-- Estado de pausa para mobile
+local isPaused = false
+
 storage.initialize()
 
 local Window = WindUI:CreateWindow({
@@ -188,6 +191,49 @@ local function notify(title, content, duration)
     })
 end
 
+-- Função central de iniciar playback (usada pelo botão mobile e pela tecla E)
+local function tryStartPlayback()
+    if not isPlaybackModeEnabled then
+        notify("Erro", "Ative o Modo de Reprodução primeiro", 2)
+        return
+    end
+    if playback.isPlaying then
+        notify("Aviso", "Reprodução já está em andamento", 2)
+        return
+    end
+    if not loadedTASData or #loadedTASData == 0 then
+        notify("Erro", "Carregue um TAS primeiro", 2)
+        return
+    end
+
+    local firstFrameData = loadedTASData[1]
+    if firstFrameData and firstFrameData.cf then
+        local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
+        local distanceToMarker = (HumanoidRootPart.Position - startPosition).Magnitude
+        if distanceToMarker <= 12 then
+            marker.destroyMarker()
+            isPaused = false
+            playback.startPlayback(loadedTASData, HumanoidRootPart, Humanoid, workspace.CurrentCamera, notify, function()
+                marker.destroyMarker()
+            end, interpolation)
+        else
+            notify("Erro", "Você deve estar no marcador verde", 2)
+        end
+    end
+end
+
+-- Função central de parar playback
+local function tryStopPlayback()
+    if not playback.isPlaying then
+        notify("Aviso", "Nenhuma reprodução em andamento", 2)
+        return
+    end
+    isPaused = false
+    playback.stopPlayback(HumanoidRootPart, Humanoid, notify, function()
+        marker.destroyMarker()
+    end)
+end
+
 RecordTab:Section({
     Title = "Controles",
     Desc = "Ative o modo de gravação, depois use E para iniciar e Q para parar.",
@@ -298,7 +344,7 @@ PlaybackTab:Divider()
 
 PlaybackTab:Section({
     Title = "Reproduzir TAS",
-    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.",
+    Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.\nNo mobile, use os botões abaixo.",
     TextSize = 14,
 })
 
@@ -328,10 +374,82 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
                     marker.destroyMarker()
                 end)
             end
+            isPaused = false
             marker.destroyMarker()
         end
     end
 })
+
+PlaybackTab:Space()
+
+-- =============================================
+-- BOTÕES MOBILE - Iniciar / Pausar / Parar
+-- =============================================
+PlaybackTab:Section({
+    Title = "Controles Mobile",
+    Desc = "Use os botões abaixo para controlar a reprodução sem teclado.",
+    TextSize = 14,
+})
+
+PlaybackTab:Button({
+    Title = "▶  Iniciar Reprodução",
+    Desc = "Inicia o TAS (equivale ao E)",
+    Icon = "lucide:play",
+    Callback = function()
+        tryStartPlayback()
+    end
+})
+
+PlaybackTab:Space()
+
+PlaybackTab:Button({
+    Title = "⏸  Pausar / Retomar",
+    Desc = "Pausa ou retoma a reprodução",
+    Icon = "lucide:pause",
+    Callback = function()
+        if not playback.isPlaying and not isPaused then
+            notify("Aviso", "Nenhuma reprodução em andamento", 2)
+            return
+        end
+
+        -- Tenta usar pausePlayback/resumePlayback se o módulo suportar
+        if isPaused then
+            if playback.resumePlayback then
+                playback.resumePlayback()
+                isPaused = false
+                notify("Reprodução", "Retomado", 1)
+            else
+                -- Fallback: reinicia do começo caso o módulo não tenha pause nativo
+                isPaused = false
+                tryStartPlayback()
+            end
+        else
+            if playback.pausePlayback then
+                playback.pausePlayback()
+                isPaused = true
+                notify("Reprodução", "Pausado", 1)
+            else
+                -- Fallback: para a reprodução como pausa
+                playback.stopPlayback(HumanoidRootPart, Humanoid, notify, function() end)
+                isPaused = true
+                notify("Reprodução", "Pausado (parada temporária)", 1)
+            end
+        end
+    end
+})
+
+PlaybackTab:Space()
+
+PlaybackTab:Button({
+    Title = "⏹  Parar Reprodução",
+    Desc = "Para o TAS (equivale ao Q)",
+    Icon = "lucide:square",
+    Callback = function()
+        tryStopPlayback()
+    end
+})
+
+-- =============================================
 
 HitboxTab:Section({
     Title = "Configurações de Hitbox",
@@ -652,29 +770,13 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
         if isRecordingModeEnabled and not recording.isRecording then
             recording.beginRecording(HumanoidRootPart, Character, workspace.CurrentCamera, notify)
         elseif isPlaybackModeEnabled and not playback.isPlaying then
-            if loadedTASData and #loadedTASData > 0 then
-                local firstFrameData = loadedTASData[1]
-                if firstFrameData and firstFrameData.cf then
-                    local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
-                    local distanceToMarker = (HumanoidRootPart.Position - startPosition).Magnitude
-                    if distanceToMarker <= 12 then
-                        marker.destroyMarker()
-                        playback.startPlayback(loadedTASData, HumanoidRootPart, Humanoid, workspace.CurrentCamera, notify, function()
-                            marker.destroyMarker()
-                        end, interpolation)
-                    else
-                        notify("Erro", "Você deve estar no marcador verde", 2)
-                    end
-                end
-            end
+            tryStartPlayback()
         end
     elseif inputObject.KeyCode == Enum.KeyCode.Q then
         if isRecordingModeEnabled and recording.isRecording then
             recording.endRecording(notify)
         elseif isPlaybackModeEnabled and playback.isPlaying then
-            playback.stopPlayback(HumanoidRootPart, Humanoid, notify, function()
-                marker.destroyMarker()
-            end)
+            tryStopPlayback()
         end
     end
 end)
