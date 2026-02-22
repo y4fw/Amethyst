@@ -58,7 +58,6 @@ end
 
 function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc, onComplete, interpolationModule)
     if not loadedTASData or #loadedTASData == 0 then
-        notifyFunc("Erro", "Nenhum TAS carregado", 2)
         return
     end
     
@@ -69,8 +68,7 @@ function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc
     createParkour1Shortcut()
     createParkour2Shortcut()
     createParkour3Shortcut()
-    
-    notifyFunc("Reprodução", "Reproduzindo TAS", 2)
+
     
     if playback.playbackConnection then
         playback.playbackConnection:Disconnect()
@@ -98,7 +96,6 @@ function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc
             
             removeParkours()
             
-            notifyFunc("Reprodução", "Reprodução finalizada", 2)
             if onComplete then
                 onComplete()
             end
@@ -219,7 +216,6 @@ function playback.stopPlayback(hrp, humanoid, notifyFunc, onComplete)
         onComplete()
     end
     
-    notifyFunc("Reprodução", "Reprodução parada", 2)
 end
 
 return playback
