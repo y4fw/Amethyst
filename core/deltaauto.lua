@@ -1,3 +1,5 @@
+-- [+] Update
+
 local autoclicker = {}
 
 local Players = game:GetService("Players")
