@@ -56,7 +56,7 @@ local function removeParkours()
     end
 end
 
-function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc, onComplete, interpolationModule, isSafeMode)
+function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc, onComplete, interpolationModule)
     if not loadedTASData or #loadedTASData == 0 then
         return
     end

@@ -1,4 +1,4 @@
--- Made by y4fw
+-- hi skidder
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
@@ -82,10 +82,10 @@ local isPaused = false
 storage.initialize()
 
 local Window = WindUI:CreateWindow({
-    Title = "Sapphire.xyz",
+    Title = "Amethyst",
     Icon = "lucide:sparkles",
     Author = "by y4fw",
-    Folder = "SapphireTAS",
+    Folder = "AmethystTAS",
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
     Transparent = true,
@@ -98,8 +98,8 @@ local Window = WindUI:CreateWindow({
         end,
     },
     KeySystem = {
-        Key = { "sapphire" },
-        Note = "Digite a key para acessar o Sapphire",
+        Key = { "amethyst" },
+        Note = "Digite a key para acessar o Amethyst",
         SaveKey = true,
     },
 })
@@ -190,14 +190,6 @@ local function notify(title, content, duration)
         Duration = duration,
         Icon = "lucide:info"
     })
-end
-
-local function getKeyCodeSafe(keyName)
-    if not keyName then return nil end
-    local success, keyCode = pcall(function()
-        return Enum.KeyCode[keyName]
-    end)
-    return success and keyCode or nil
 end
 
 local function tryStartPlayback()
@@ -350,47 +342,6 @@ PlaybackTab:Button({
 PlaybackTab:Divider()
 
 PlaybackTab:Section({
-    Title = "Modo Seguro",
-    Desc = "Ativa modo discreto com marker invisível e caminhada humanizada.",
-    TextSize = 14,
-})
-
-local SafeModeToggle = PlaybackTab:Toggle({
-    Title = "Ativar Modo Seguro",
-    Desc = "Marker invisível e caminhada humanizada para posição inicial",
-    Value = false,
-    Callback = function(state)
-        isSafeModeEnabled = state
-    end
-})
-
-PlaybackTab:Space()
-
-local SafeModeAutoWalkToggle = PlaybackTab:Toggle({
-    Title = "Auto Caminhar ao Ativar Reprodução",
-    Desc = "Caminha automaticamente quando ativa o Modo de Reprodução",
-    Value = false,
-    Callback = function(state)
-        isSafeModeAutoWalkEnabled = state
-    end
-})
-
-PlaybackTab:Space()
-
-local SafeModeKeybind = PlaybackTab:Keybind({
-    Title = "Tecla para Caminhar (Modo Seguro)",
-    Desc = "Pressione para caminhar até a posição inicial",
-    Value = "J",
-    Callback = function(key)
-        currentSafeModeKey = key
-    end
-})
-
-PlaybackTab:Space()
-
-PlaybackTab:Divider()
-
-PlaybackTab:Section({
     Title = "Reproduzir TAS",
     Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.\nNo mobile, use os botões abaixo.",
     TextSize = 14,
@@ -413,22 +364,8 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
             local firstFrameData = loadedTASData[1]
             if firstFrameData and firstFrameData.cf then
                 local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
-                local startCFrame = CFrame.new(
-                    firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3],
-                    firstFrameData.cf[4], firstFrameData.cf[5], firstFrameData.cf[6],
-                    firstFrameData.cf[7], firstFrameData.cf[8], firstFrameData.cf[9],
-                    firstFrameData.cf[10], firstFrameData.cf[11], firstFrameData.cf[12]
-                )
-                marker.createStartPositionMarker(startPosition, isSafeModeEnabled)
-                
-                if isSafeModeEnabled and isSafeModeAutoWalkEnabled then
-                    walkToPosition(startPosition, startCFrame, function()
-                        notify("Modo Seguro", "Posição atingida", 2)
-                    end)
-                    notify("Modo Seguro", "Caminhando para posição inicial...", 3)
-                else
-                    notify("Modo de Reprodução", "Vá até o marcador" .. (isSafeModeEnabled and "" or " verde") .. ", pressione E para iniciar, Q para parar", 4)
-                end
+                marker.createStartPositionMarker(startPosition)
+                notify("Modo de Reprodução", "Vá até o marcador verde, pressione E para iniciar, Q para parar", 4)
             end
         else
             if playback.isPlaying then
@@ -617,13 +554,10 @@ HitboxTab:Space()
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
-    local hitboxKey = getKeyCodeSafe(currentHitboxKey)
-    if hitboxKey and input.KeyCode == hitboxKey then
-        if hitbox.isEnabled then
-            local currentState = hitbox.isEnabled
-            HitboxToggle:Set(not currentState)
-            hitbox.setEnabled(not currentState)
-        end
+    if input.KeyCode == Enum.KeyCode[currentHitboxKey] then
+        local currentState = hitbox.isEnabled
+        HitboxToggle:Set(not currentState)
+        hitbox.setEnabled(not currentState)
     end
 end)
 
@@ -813,8 +747,7 @@ SettingsTab:Paragraph({
 UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
     if isProcessedByGame then return end
     
-    local aimbotKey = getKeyCodeSafe(currentAimbotKey)
-    if aimbotKey and inputObject.KeyCode == aimbotKey then
+    if inputObject.KeyCode == Enum.KeyCode[currentAimbotKey] then
         if aimbot.isEnabled and not isRecordingModeEnabled and not isPlaybackModeEnabled then
             aimbot.toggleAiming()
             if aimbot.isAiming then
@@ -848,7 +781,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 WindUI:Notify({
-    Title = "Sapphire.xyz",
+    Title = "Amethyst.xyz",
     Content = "Carregado com sucesso",
     Duration = 3,
     Icon = "lucide:check-circle"
