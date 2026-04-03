@@ -14,7 +14,9 @@ function marker.createStartPositionMarker(position, invisible)
     markerPart.CanCollide = false
     
     if invisible then
-        markerPart.Transparency = 1
+        markerPart.Transparency = 0.7
+        markerPart.Color = Color3.fromRGB(0, 255, 0)
+        markerPart.Material = Enum.Material.Neon
     else
         markerPart.Transparency = 0.7
         markerPart.Color = Color3.fromRGB(0, 255, 0)
