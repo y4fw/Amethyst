@@ -78,14 +78,17 @@ local selectedTASFileName = ""
 local version = "1.5.7"
 
 local isPaused = false
+local isSafeModeEnabled = false
+local isSafeModeAutoTeleportEnabled = false
+local currentSafeModeKey = "OemCloseBrackets"
 
 storage.initialize()
 
 local Window = WindUI:CreateWindow({
-    Title = "Amethyst",
+    Title = "Sapphire.xyz",
     Icon = "lucide:sparkles",
     Author = "by y4fw",
-    Folder = "AmethystTAS",
+    Folder = "SapphireTAS",
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
     Transparent = true,
@@ -98,8 +101,8 @@ local Window = WindUI:CreateWindow({
         end,
     },
     KeySystem = {
-        Key = { "amethyst" },
-        Note = "Digite a key para acessar o Amethyst",
+        Key = { "sapphire" },
+        Note = "Digite a key para acessar o Sapphire",
         SaveKey = true,
     },
 })
@@ -215,9 +218,9 @@ local function tryStartPlayback()
             isPaused = false
             playback.startPlayback(loadedTASData, HumanoidRootPart, Humanoid, workspace.CurrentCamera, notify, function()
                 marker.destroyMarker()
-            end, interpolation)
+            end, interpolation, isSafeModeEnabled)
         else
-            notify("Erro", "Você deve estar no marcador verde", 2)
+            notify("Erro", "Você deve estar no marcador" .. (isSafeModeEnabled and "" or " verde"), 2)
         end
     end
 end
@@ -342,6 +345,48 @@ PlaybackTab:Button({
 PlaybackTab:Divider()
 
 PlaybackTab:Section({
+    Title = "Modo Seguro",
+    Desc = "Ativa modo discreto com marker invisível e teleporte para posição inicial.",
+    TextSize = 14,
+})
+
+local SafeModeToggle = PlaybackTab:Toggle({
+    Title = "Ativar Modo Seguro",
+    Desc = "Marker invisível e funcionalidades discretas",
+    Value = false,
+    Callback = function(state)
+        isSafeModeEnabled = state
+    end
+})
+
+PlaybackTab:Space()
+
+local SafeModeAutoTeleportToggle = PlaybackTab:Toggle({
+    Title = "Auto Teleporte para Posição Inicial",
+    Desc = "Teleportar para posição inicial ao pressionar a keybind",
+    Value = false,
+    Callback = function(state)
+        isSafeModeAutoTeleportEnabled = state
+    end
+})
+
+PlaybackTab:Space()
+
+local currentSafeModeKeyDisplay = "Ç"
+local SafeModeKeybind = PlaybackTab:Keybind({
+    Title = "Tecla para Teleportar (Modo Seguro)",
+    Desc = "Tecla para ir à posição inicial do TAS",
+    Value = "OemCloseBrackets",
+    Callback = function(key)
+        currentSafeModeKey = key
+    end
+})
+
+PlaybackTab:Space()
+
+PlaybackTab:Divider()
+
+PlaybackTab:Section({
     Title = "Reproduzir TAS",
     Desc = "Ative o modo de reprodução e use E para iniciar, Q para parar.\nNo mobile, use os botões abaixo.",
     TextSize = 14,
@@ -364,8 +409,8 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
             local firstFrameData = loadedTASData[1]
             if firstFrameData and firstFrameData.cf then
                 local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
-                marker.createStartPositionMarker(startPosition)
-                notify("Modo de Reprodução", "Vá até o marcador verde, pressione E para iniciar, Q para parar", 4)
+                marker.createStartPositionMarker(startPosition, isSafeModeEnabled)
+                notify("Modo de Reprodução", "Vá até o marcador" .. (isSafeModeEnabled and "" or " verde") .. ", pressione E para iniciar, Q para parar", 4)
             end
         else
             if playback.isPlaying then
@@ -555,9 +600,11 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
     if input.KeyCode == Enum.KeyCode[currentHitboxKey] then
-        local currentState = hitbox.isEnabled
-        HitboxToggle:Set(not currentState)
-        hitbox.setEnabled(not currentState)
+        if hitbox.isEnabled then
+            local currentState = hitbox.isEnabled
+            HitboxToggle:Set(not currentState)
+            hitbox.setEnabled(not currentState)
+        end
     end
 end)
 
@@ -758,6 +805,17 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
         end
     end
     
+    if inputObject.KeyCode == Enum.KeyCode[currentSafeModeKey] then
+        if isSafeModeEnabled and isSafeModeAutoTeleportEnabled and isPlaybackModeEnabled and loadedTASData and #loadedTASData > 0 then
+            local firstFrameData = loadedTASData[1]
+            if firstFrameData and firstFrameData.cf then
+                local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
+                HumanoidRootPart.CFrame = CFrame.new(startPosition)
+                notify("Modo Seguro", "Teleportado para posição inicial", 1)
+            end
+        end
+    end
+    
     if inputObject.KeyCode == Enum.KeyCode.E then
         if isRecordingModeEnabled and not recording.isRecording then
             recording.beginRecording(HumanoidRootPart, Character, workspace.CurrentCamera, notify)
@@ -781,7 +839,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 WindUI:Notify({
-    Title = "Amethyst.xyz",
+    Title = "Sapphire.xyz",
     Content = "Carregado com sucesso",
     Duration = 3,
     Icon = "lucide:check-circle"

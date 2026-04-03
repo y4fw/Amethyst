@@ -2,7 +2,7 @@ local marker = {}
 
 marker.startPositionMarker = nil
 
-function marker.createStartPositionMarker(position)
+function marker.createStartPositionMarker(position, invisible)
     if marker.startPositionMarker then
         marker.startPositionMarker:Destroy()
     end
@@ -12,9 +12,15 @@ function marker.createStartPositionMarker(position)
     markerPart.Position = position
     markerPart.Anchored = true
     markerPart.CanCollide = false
-    markerPart.Transparency = 0.7
-    markerPart.Color = Color3.fromRGB(0, 255, 0)
-    markerPart.Material = Enum.Material.Neon
+    
+    if invisible then
+        markerPart.Transparency = 1
+    else
+        markerPart.Transparency = 0.7
+        markerPart.Color = Color3.fromRGB(0, 255, 0)
+        markerPart.Material = Enum.Material.Neon
+    end
+    
     markerPart.Parent = workspace
     
     marker.startPositionMarker = markerPart
