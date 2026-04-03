@@ -80,7 +80,7 @@ local version = "1.5.7"
 local isPaused = false
 local isSafeModeEnabled = false
 local isSafeModeAutoTeleportEnabled = false
-local currentSafeModeKey = "OemCloseBrackets"
+local currentSafeModeKey = "RightBracket"
 
 storage.initialize()
 
@@ -193,6 +193,14 @@ local function notify(title, content, duration)
         Duration = duration,
         Icon = "lucide:info"
     })
+end
+
+local function getKeyCodeSafe(keyName)
+    if not keyName then return nil end
+    local success, keyCode = pcall(function()
+        return Enum.KeyCode[keyName]
+    end)
+    return success and keyCode or nil
 end
 
 local function tryStartPlayback()
@@ -376,7 +384,7 @@ local currentSafeModeKeyDisplay = "Ç"
 local SafeModeKeybind = PlaybackTab:Keybind({
     Title = "Tecla para Teleportar (Modo Seguro)",
     Desc = "Tecla para ir à posição inicial do TAS",
-    Value = "OemCloseBrackets",
+    Value = "RightBracket",
     Callback = function(key)
         currentSafeModeKey = key
     end
@@ -599,7 +607,8 @@ HitboxTab:Space()
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
-    if input.KeyCode == Enum.KeyCode[currentHitboxKey] then
+    local hitboxKey = getKeyCodeSafe(currentHitboxKey)
+    if hitboxKey and input.KeyCode == hitboxKey then
         if hitbox.isEnabled then
             local currentState = hitbox.isEnabled
             HitboxToggle:Set(not currentState)
@@ -794,7 +803,8 @@ SettingsTab:Paragraph({
 UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
     if isProcessedByGame then return end
     
-    if inputObject.KeyCode == Enum.KeyCode[currentAimbotKey] then
+    local aimbotKey = getKeyCodeSafe(currentAimbotKey)
+    if aimbotKey and inputObject.KeyCode == aimbotKey then
         if aimbot.isEnabled and not isRecordingModeEnabled and not isPlaybackModeEnabled then
             aimbot.toggleAiming()
             if aimbot.isAiming then
@@ -805,7 +815,8 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
         end
     end
     
-    if inputObject.KeyCode == Enum.KeyCode[currentSafeModeKey] then
+    local safeModeKey = getKeyCodeSafe(currentSafeModeKey)
+    if safeModeKey and inputObject.KeyCode == safeModeKey then
         if isSafeModeEnabled and isSafeModeAutoTeleportEnabled and isPlaybackModeEnabled and loadedTASData and #loadedTASData > 0 then
             local firstFrameData = loadedTASData[1]
             if firstFrameData and firstFrameData.cf then
