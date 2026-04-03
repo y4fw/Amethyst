@@ -79,8 +79,8 @@ local version = "1.5.7"
 
 local isPaused = false
 local isSafeModeEnabled = false
-local isSafeModeAutoTeleportEnabled = false
-local currentSafeModeKey = "RightBracket"
+local isSafeModeAutoWalkEnabled = false
+local currentSafeModeKey = "J"
 
 storage.initialize()
 
@@ -201,6 +201,37 @@ local function getKeyCodeSafe(keyName)
         return Enum.KeyCode[keyName]
     end)
     return success and keyCode or nil
+end
+
+local function walkToPosition(targetPosition, callback)
+    if isWalkingToPosition then return end
+    isWalkingToPosition = true
+    
+    local connection
+    connection = RunService.Heartbeat:Connect(function()
+        if not isWalkingToPosition or not HumanoidRootPart or not Humanoid then
+            connection:Disconnect()
+            isWalkingToPosition = false
+            if callback then callback() end
+            return
+        end
+        
+        local currentPos = HumanoidRootPart.Position
+        local distance = (currentPos - targetPosition).Magnitude
+        
+        if distance < 5 then
+            Humanoid:Move(Vector3.new(0, 0, 0))
+            connection:Disconnect()
+            isWalkingToPosition = false
+            if callback then callback() end
+            return
+        end
+        
+        local direction = (targetPosition - currentPos).Unit
+        local targetCFrame = CFrame.lookAt(currentPos, targetPosition)
+        HumanoidRootPart.CFrame = HumanoidRootPart.CFrame:Lerp(targetCFrame, 0.1)
+        Humanoid:Move(direction)
+    end)
 end
 
 local function tryStartPlayback()
@@ -354,13 +385,13 @@ PlaybackTab:Divider()
 
 PlaybackTab:Section({
     Title = "Modo Seguro",
-    Desc = "Ativa modo discreto com marker invisível e teleporte para posição inicial.",
+    Desc = "Ativa modo discreto com marker invisível e caminhada humanizada.",
     TextSize = 14,
 })
 
 local SafeModeToggle = PlaybackTab:Toggle({
     Title = "Ativar Modo Seguro",
-    Desc = "Marker invisível e funcionalidades discretas",
+    Desc = "Marker invisível e caminhada humanizada para posição inicial",
     Value = false,
     Callback = function(state)
         isSafeModeEnabled = state
@@ -369,22 +400,21 @@ local SafeModeToggle = PlaybackTab:Toggle({
 
 PlaybackTab:Space()
 
-local SafeModeAutoTeleportToggle = PlaybackTab:Toggle({
-    Title = "Auto Teleporte para Posição Inicial",
-    Desc = "Teleportar para posição inicial ao pressionar a keybind",
+local SafeModeAutoWalkToggle = PlaybackTab:Toggle({
+    Title = "Auto Caminhar ao Ativar Reprodução",
+    Desc = "Caminha automaticamente quando ativa o Modo de Reprodução",
     Value = false,
     Callback = function(state)
-        isSafeModeAutoTeleportEnabled = state
+        isSafeModeAutoWalkEnabled = state
     end
 })
 
 PlaybackTab:Space()
 
-local currentSafeModeKeyDisplay = "Ç"
 local SafeModeKeybind = PlaybackTab:Keybind({
-    Title = "Tecla para Teleportar (Modo Seguro)",
-    Desc = "Tecla para ir à posição inicial do TAS",
-    Value = "RightBracket",
+    Title = "Tecla para Caminhar (Modo Seguro)",
+    Desc = "Pressione para caminhar até a posição inicial",
+    Value = "J",
     Callback = function(key)
         currentSafeModeKey = key
     end
@@ -418,7 +448,15 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
             if firstFrameData and firstFrameData.cf then
                 local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
                 marker.createStartPositionMarker(startPosition, isSafeModeEnabled)
-                notify("Modo de Reprodução", "Vá até o marcador" .. (isSafeModeEnabled and "" or " verde") .. ", pressione E para iniciar, Q para parar", 4)
+                
+                if isSafeModeEnabled and isSafeModeAutoWalkEnabled then
+                    walkToPosition(startPosition, function()
+                        notify("Modo Seguro", "Posição atingida", 2)
+                    end)
+                    notify("Modo Seguro", "Caminhando para posição inicial...", 3)
+                else
+                    notify("Modo de Reprodução", "Vá até o marcador" .. (isSafeModeEnabled and "" or " verde") .. ", pressione E para iniciar, Q para parar", 4)
+                end
             end
         else
             if playback.isPlaying then
@@ -817,12 +855,14 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
     
     local safeModeKey = getKeyCodeSafe(currentSafeModeKey)
     if safeModeKey and inputObject.KeyCode == safeModeKey then
-        if isSafeModeEnabled and isSafeModeAutoTeleportEnabled and isPlaybackModeEnabled and loadedTASData and #loadedTASData > 0 then
+        if isSafeModeEnabled and isPlaybackModeEnabled and loadedTASData and #loadedTASData > 0 then
             local firstFrameData = loadedTASData[1]
             if firstFrameData and firstFrameData.cf then
                 local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
-                HumanoidRootPart.CFrame = CFrame.new(startPosition)
-                notify("Modo Seguro", "Teleportado para posição inicial", 1)
+                walkToPosition(startPosition, function()
+                    notify("Modo Seguro", "Posição atingida", 2)
+                end)
+                notify("Modo Seguro", "Caminhando para posição inicial...", 2)
             end
         end
     end
