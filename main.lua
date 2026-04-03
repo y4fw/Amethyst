@@ -78,9 +78,6 @@ local selectedTASFileName = ""
 local version = "1.5.7"
 
 local isPaused = false
-local isSafeModeEnabled = false
-local isSafeModeAutoWalkEnabled = false
-local currentSafeModeKey = "J"
 
 storage.initialize()
 
@@ -203,37 +200,6 @@ local function getKeyCodeSafe(keyName)
     return success and keyCode or nil
 end
 
-local function walkToPosition(targetPosition, callback)
-    if isWalkingToPosition then return end
-    isWalkingToPosition = true
-    
-    local connection
-    connection = RunService.Heartbeat:Connect(function()
-        if not isWalkingToPosition or not HumanoidRootPart or not Humanoid then
-            connection:Disconnect()
-            isWalkingToPosition = false
-            if callback then callback() end
-            return
-        end
-        
-        local currentPos = HumanoidRootPart.Position
-        local distance = (currentPos - targetPosition).Magnitude
-        
-        if distance < 5 then
-            Humanoid:Move(Vector3.new(0, 0, 0))
-            connection:Disconnect()
-            isWalkingToPosition = false
-            if callback then callback() end
-            return
-        end
-        
-        local direction = (targetPosition - currentPos).Unit
-        local targetCFrame = CFrame.lookAt(currentPos, targetPosition)
-        HumanoidRootPart.CFrame = HumanoidRootPart.CFrame:Lerp(targetCFrame, 0.1)
-        Humanoid:Move(direction)
-    end)
-end
-
 local function tryStartPlayback()
     if not isPlaybackModeEnabled then
         notify("Erro", "Ative o Modo de Reprodução primeiro", 2)
@@ -257,9 +223,9 @@ local function tryStartPlayback()
             isPaused = false
             playback.startPlayback(loadedTASData, HumanoidRootPart, Humanoid, workspace.CurrentCamera, notify, function()
                 marker.destroyMarker()
-            end, interpolation, isSafeModeEnabled)
+            end, interpolation)
         else
-            notify("Erro", "Você deve estar no marcador" .. (isSafeModeEnabled and "" or " verde"), 2)
+            notify("Erro", "Você deve estar no marcador verde", 2)
         end
     end
 end
@@ -447,10 +413,16 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
             local firstFrameData = loadedTASData[1]
             if firstFrameData and firstFrameData.cf then
                 local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
+                local startCFrame = CFrame.new(
+                    firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3],
+                    firstFrameData.cf[4], firstFrameData.cf[5], firstFrameData.cf[6],
+                    firstFrameData.cf[7], firstFrameData.cf[8], firstFrameData.cf[9],
+                    firstFrameData.cf[10], firstFrameData.cf[11], firstFrameData.cf[12]
+                )
                 marker.createStartPositionMarker(startPosition, isSafeModeEnabled)
                 
                 if isSafeModeEnabled and isSafeModeAutoWalkEnabled then
-                    walkToPosition(startPosition, function()
+                    walkToPosition(startPosition, startCFrame, function()
                         notify("Modo Seguro", "Posição atingida", 2)
                     end)
                     notify("Modo Seguro", "Caminhando para posição inicial...", 3)
@@ -849,20 +821,6 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
                 notify("Aimbot", "Mira ativada", 1)
             else
                 notify("Aimbot", "Mira desativada", 1)
-            end
-        end
-    end
-    
-    local safeModeKey = getKeyCodeSafe(currentSafeModeKey)
-    if safeModeKey and inputObject.KeyCode == safeModeKey then
-        if isSafeModeEnabled and isPlaybackModeEnabled and loadedTASData and #loadedTASData > 0 then
-            local firstFrameData = loadedTASData[1]
-            if firstFrameData and firstFrameData.cf then
-                local startPosition = Vector3.new(firstFrameData.cf[1], firstFrameData.cf[2], firstFrameData.cf[3])
-                walkToPosition(startPosition, function()
-                    notify("Modo Seguro", "Posição atingida", 2)
-                end)
-                notify("Modo Seguro", "Caminhando para posição inicial...", 2)
             end
         end
     end
