@@ -57,7 +57,7 @@ if not hitbox then error("[+] Falha ao carregar core/hitbox.lua") end
 local aimbot = loadModule("core/aimbot.lua")
 if not aimbot then error("[+] Falha ao carregar core/aimbot.lua") end
 
-local autoclicker = loadModule("core/deltaautojjs.lua")
+local autoclicker = loadModule("core/deltaauto.lua")
 if not autoclicker then error("[+] Falha ao carregar core/deltaautojjs.lua") end
 
 local Players = game:GetService("Players")
@@ -75,7 +75,6 @@ local isPlaybackModeEnabled = false
 local selectedTASFileName = ""
 local version = "1.5.7"
 
--- Estado de pausa para mobile
 local isPaused = false
 
 storage.initialize()
@@ -191,7 +190,6 @@ local function notify(title, content, duration)
     })
 end
 
--- Função central de iniciar playback (usada pelo botão mobile e pela tecla E)
 local function tryStartPlayback()
     if not isPlaybackModeEnabled then
         notify("Erro", "Ative o Modo de Reprodução primeiro", 2)
@@ -222,7 +220,6 @@ local function tryStartPlayback()
     end
 end
 
--- Função central de parar playback
 local function tryStopPlayback()
     if not playback.isPlaying then
         notify("Aviso", "Nenhuma reprodução em andamento", 2)
@@ -382,9 +379,6 @@ local PlaybackModeToggle = PlaybackTab:Toggle({
 
 PlaybackTab:Space()
 
--- =============================================
--- BOTÕES MOBILE - Iniciar / Pausar / Parar
--- =============================================
 PlaybackTab:Section({
     Title = "Controles Mobile",
     Desc = "Use os botões abaixo para controlar a reprodução sem teclado.",
@@ -412,14 +406,12 @@ PlaybackTab:Button({
             return
         end
 
-        -- Tenta usar pausePlayback/resumePlayback se o módulo suportar
         if isPaused then
             if playback.resumePlayback then
                 playback.resumePlayback()
                 isPaused = false
                 notify("Reprodução", "Retomado", 1)
             else
-                -- Fallback: reinicia do começo caso o módulo não tenha pause nativo
                 isPaused = false
                 tryStartPlayback()
             end
@@ -429,7 +421,6 @@ PlaybackTab:Button({
                 isPaused = true
                 notify("Reprodução", "Pausado", 1)
             else
-                -- Fallback: para a reprodução como pausa
                 playback.stopPlayback(HumanoidRootPart, Humanoid, notify, function() end)
                 isPaused = true
                 notify("Reprodução", "Pausado (parada temporária)", 1)
@@ -449,7 +440,6 @@ PlaybackTab:Button({
     end
 })
 
--- =============================================
 
 HitboxTab:Section({
     Title = "Configurações de Hitbox",
