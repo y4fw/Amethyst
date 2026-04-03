@@ -789,7 +789,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 WindUI:Notify({
-    Title = "Amethyst",
+    Title = "Amethyst.xyz",
     Content = "Carregado com sucesso",
     Duration = 3,
     Icon = "lucide:check-circle"
