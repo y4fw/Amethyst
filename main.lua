@@ -1,3 +1,5 @@
+-- Made by y4fw
+
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local baseURL = "https://raw.githubusercontent.com/y4fw/Amethyst/main/"
