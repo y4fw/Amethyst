@@ -41,12 +41,17 @@ local function simulateInput(inputButton, keyRequired)
     
     if keyRequired and keyRequired ~= "TAP" then
         local keyCode = Enum.KeyCode[keyRequired]
+        local buttonCode = Enum.KeyCode[("Button" .. keyRequired):gsub("Button", "")]
         
         if keyCode then
             VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
             task.wait(0.05)
             VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
-            
+            autoclicker.currentClicks = autoclicker.currentClicks + 1
+        elseif buttonCode then
+            VirtualInputManager:SendKeyEvent(true, buttonCode, false, game)
+            task.wait(0.05)
+            VirtualInputManager:SendKeyEvent(false, buttonCode, false, game)
             autoclicker.currentClicks = autoclicker.currentClicks + 1
         end
     else
@@ -96,7 +101,7 @@ function autoclicker.setEnabled(enabled, notifyFunc)
         table.insert(autoclicker.connections, screen.ChildAdded:Connect(function(child)
             if not autoclicker.isEnabled then return end
             
-            if child:IsA("ImageButton") and child.Name == "InputTemplate" then
+            if child:IsA("ImageButton") then
                 task.wait(0.05)
                 
                 local textLabel = child:FindFirstChildWhichIsA("TextLabel")
