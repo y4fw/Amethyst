@@ -69,6 +69,35 @@ function playback.startPlayback(loadedTASData, hrp, humanoid, camera, notifyFunc
     createParkour2Shortcut()
     createParkour3Shortcut()
 
+    local initialFrame = loadedTASData[1]
+    
+    if initialFrame.cf then
+        if type(initialFrame.cf) == "table" then
+            local cframeData = initialFrame.cf
+            hrp.CFrame = CFrame.new(
+                cframeData[1], cframeData[2], cframeData[3],
+                cframeData[4], cframeData[5], cframeData[6],
+                cframeData[7], cframeData[8], cframeData[9],
+                cframeData[10], cframeData[11], cframeData[12]
+            )
+        else
+            hrp.CFrame = initialFrame.cf
+        end
+    end
+    
+    if initialFrame.cam then
+        if type(initialFrame.cam) == "table" then
+            local cameraData = initialFrame.cam
+            camera.CFrame = CFrame.new(
+                cameraData[1], cameraData[2], cameraData[3],
+                cameraData[4], cameraData[5], cameraData[6],
+                cameraData[7], cameraData[8], cameraData[9],
+                cameraData[10], cameraData[11], cameraData[12]
+            )
+        else
+            camera.CFrame = initialFrame.cam
+        end
+    end
     
     if playback.playbackConnection then
         playback.playbackConnection:Disconnect()

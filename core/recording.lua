@@ -65,7 +65,7 @@ function recording.getFrameCount()
 end
 
 function recording.getDuration()
-    return tick() - recording.recordingStartTimestamp
+    return #recording.recordedFrames > 0 and recording.recordedFrames[#recording.recordedFrames].time or 0
 end
 
 return recording
