@@ -104,7 +104,7 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-Window:SetToggleKey(Enum.KeyCode.F1)
+Window:SetToggleKey(Enum.KeyCode.K)
 
 Window:Tag({
     Title = "v" .. version,
@@ -677,31 +677,6 @@ local AutoJJSToggle = AutoJJSTab:Toggle({
 
 AutoJJSTab:Space()
 
-local currentAutoJJSKey = "F2"
-local currentAutoJJSPauseKey = "F3"
-
-local AutoJJSKeybind = AutoJJSTab:Keybind({
-    Title = "Tecla Iniciar/Parar Auto JJS",
-    Desc = "Pressione para ligar ou desligar o Auto JJS",
-    Value = "F2",
-    Callback = function(key)
-        currentAutoJJSKey = key
-    end,
-})
-
-AutoJJSTab:Space()
-
-local AutoJJSPauseKeybind = AutoJJSTab:Keybind({
-    Title = "Tecla Pausar/Despausar Auto JJS",
-    Desc = "Pressione para pausar ou retomar o Auto JJS",
-    Value = "F3",
-    Callback = function(key)
-        currentAutoJJSPauseKey = key
-    end,
-})
-
-AutoJJSTab:Space()
-
 local AdvancedModeToggle = AutoJJSTab:Toggle({
     Title = "Modo Avançado",
     Desc = "Calcular delay automaticamente baseado em cliques/tempo",
@@ -780,20 +755,6 @@ UserInputService.InputBegan:Connect(function(inputObject, isProcessedByGame)
             else
                 notify("Aimbot", "Mira desativada", 1)
             end
-        end
-    end
-
-    if inputObject.KeyCode == Enum.KeyCode[currentAutoJJSKey] then
-        local newState = not autoclicker.isEnabled
-        autoclicker.setEnabled(newState, notify)
-        AutoJJSToggle:Set(newState)
-    end
-
-    if inputObject.KeyCode == Enum.KeyCode[currentAutoJJSPauseKey] then
-        if autoclicker.isEnabled then
-            autoclicker.setPaused(not autoclicker.isPaused, notify)
-        else
-            notify("Auto JJS", "Auto JJS nao esta ativo", 2)
         end
     end
     
