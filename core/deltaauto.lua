@@ -8,7 +8,6 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local LocalPlayer = Players.LocalPlayer
 
 autoclicker.isEnabled = false
-autoclicker.isPaused = false
 autoclicker.clickDelay = 0.1
 autoclicker.isAdvancedMode = false
 autoclicker.targetClicks = 400
@@ -79,7 +78,9 @@ function autoclicker.setEnabled(enabled, notifyFunc)
     if enabled then
         autoclicker.currentClicks = 0
         autoclicker.startTime = os.clock()
-            autoclicker.isPaused = false
+
+        if autoclicker.isAdvancedMode then
+            autoclicker.clickDelay = autoclicker.targetTime / autoclicker.targetClicks
         end
 
         local screen = findMinigameScreen()
@@ -139,27 +140,6 @@ end
 
 function autoclicker.setTargetTime(time)
     autoclicker.targetTime = time
-end
-
-function autoclicker.setPaused(paused, notifyFunc)
-    if not autoclicker.isEnabled then
-        if notifyFunc then
-            notifyFunc("Auto JJS", "Auto JJS nao esta ativo", 2)
-        end
-        return false
-    end
-
-    autoclicker.isPaused = paused
-
-    if notifyFunc then
-        if paused then
-            notifyFunc("Auto JJS", "Pausado", 1)
-        else
-            notifyFunc("Auto JJS", "Retomado", 1)
-        end
-    end
-
-    return true
 end
 
 function autoclicker.getProgress()
