@@ -1,4 +1,4 @@
--- hi skidder
+-- Version 1.67
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
@@ -75,7 +75,7 @@ local loadedTASData = nil
 local isRecordingModeEnabled = false
 local isPlaybackModeEnabled = false
 local selectedTASFileName = ""
-local version = "1.5.7"
+local version = "1.67"
 
 local isPaused = false
 
