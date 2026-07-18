@@ -73,10 +73,16 @@ function autoclicker.setEnabled(enabled, notifyFunc)
     if enabled then
         autoclicker.currentClicks = 0
         autoclicker.startTime = os.clock()
+<<<<<<< HEAD
         
         if autoclicker.isAdvancedMode then
             local calculatedDelay = autoclicker.targetTime / autoclicker.targetClicks
             autoclicker.clickDelay = calculatedDelay
+=======
+
+        if autoclicker.isAdvancedMode then
+            autoclicker.clickDelay = autoclicker.targetTime / autoclicker.targetClicks
+>>>>>>> cdcc1ffbb1d8edff67b0337da904d5ea56b7822c
         end
         
         local screen = findMinigameScreen()
