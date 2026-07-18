@@ -1,3 +1,5 @@
+-- lmk, again ts isn't working?
+
 local autoclicker = {}
 
 local Players = game:GetService("Players")
