@@ -82,10 +82,10 @@ local isPaused = false
 storage.initialize()
 
 local Window = WindUI:CreateWindow({
-    Title = "Amethyst",
+    Title = "sintelx.gg",
     Icon = "lucide:sparkles",
-    Author = "by y4fw",
-    Folder = "AmethystTAS",
+    Author = "by sintelx.gg",
+    Folder = "sintelxgg",
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
     Transparent = true,
@@ -776,7 +776,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 WindUI:Notify({
-    Title = "Amethyst.xyz",
+    Title = "sintelx.gg",
     Content = "Carregado com sucesso",
     Duration = 3,
     Icon = "lucide:check-circle"

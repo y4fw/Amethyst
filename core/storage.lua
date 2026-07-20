@@ -1,6 +1,6 @@
 local storage = {}
 
-storage.tasStorageFolder = "AmethystTAS"
+storage.tasStorageFolder = "sintelxgg"
 
 function storage.initialize()
     if not isfolder(storage.tasStorageFolder) then
