@@ -104,7 +104,7 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-Window:SetToggleKey(Enum.KeyCode.K)
+Window:SetToggleKey(Enum.KeyCode.Insert)
 
 Window:Tag({
     Title = "v" .. version,
