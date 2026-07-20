@@ -1,3 +1,5 @@
+-- wooooooooow this are fucked
+
 local aimbot = {}
 
 local Players = game:GetService("Players")
