@@ -16,10 +16,9 @@ aimbot.teamCheck = true
 aimbot.smoothness = 0.5
 aimbot.isAiming = false
 
-local connection = nil
+local renderConnection = nil
 local lockedTarget = nil
 
--- FOV circle
 local fovCircle = Drawing.new("Circle")
 fovCircle.Visible = false
 fovCircle.Radius = aimbot.fov
@@ -52,7 +51,7 @@ local function isTargetValid(targetPart)
 
     if aimbot.teamCheck and player.Team == LocalPlayer.Team then return false end
 
-    local screenPosition, onScreen = Camera:WorldToScreenPoint(targetPart.Position)
+    local _, onScreen = Camera:WorldToViewportPoint(targetPart.Position)
     if not onScreen then return false end
 
     if aimbot.wallCheck then
@@ -66,11 +65,9 @@ local function isTargetValid(targetPart)
     return true
 end
 
--- Pega o player que está sob o mouse no momento de apertar E
 local function getTargetUnderMouse()
     local closestPart = nil
     local shortestDistance = aimbot.fov
-
     local mousePos = UserInputService:GetMouseLocation()
 
     for _, player in pairs(Players:GetPlayers()) do
@@ -83,13 +80,12 @@ local function getTargetUnderMouse()
                     local targetPart = character:FindFirstChild(aimbot.targetPart) or character:FindFirstChild("HumanoidRootPart")
 
                     if targetPart then
-                        local screenPosition, onScreen = Camera:WorldToScreenPoint(targetPart.Position)
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(targetPart.Position)
 
                         if onScreen then
-                            local screenPos2D = Vector2.new(screenPosition.X, screenPosition.Y)
-                            local distance = (mousePos - screenPos2D).Magnitude
+                            local dist = (mousePos - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
 
-                            if distance < shortestDistance then
+                            if dist < shortestDistance then
                                 if aimbot.wallCheck then
                                     local origin = Camera.CFrame.Position
                                     local direction = targetPart.Position - origin
@@ -97,11 +93,11 @@ local function getTargetUnderMouse()
                                     local part = Workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, character})
                                     if not part then
                                         closestPart = targetPart
-                                        shortestDistance = distance
+                                        shortestDistance = dist
                                     end
                                 else
                                     closestPart = targetPart
-                                    shortestDistance = distance
+                                    shortestDistance = dist
                                 end
                             end
                         end
@@ -116,7 +112,6 @@ end
 
 local function aimAt(targetPart)
     if not targetPart then return end
-
     local currentCFrame = Camera.CFrame
     local targetCFrame = CFrame.new(currentCFrame.Position, targetPart.Position)
     Camera.CFrame = currentCFrame:Lerp(targetCFrame, aimbot.smoothness)
@@ -124,32 +119,31 @@ end
 
 function aimbot.toggleAiming()
     if aimbot.isAiming then
-        -- Desativa e destravar alvo
         aimbot.isAiming = false
         lockedTarget = nil
-    else
-        -- Trava no player que está sob o mouse agora
-        local target = getTargetUnderMouse()
-        if target then
-            lockedTarget = target
-            aimbot.isAiming = true
-        end
-        -- Se não tiver ninguém no FOV, não ativa
+        return
     end
+
+    local target = getTargetUnderMouse()
+    if not target then return end
+
+    lockedTarget = target
+    aimbot.isAiming = true
 end
 
 function aimbot.setEnabled(enabled)
     aimbot.isEnabled = enabled
 
     if enabled then
-        if connection then connection:Disconnect() end
+        if renderConnection then renderConnection:Disconnect() end
 
-        connection = RunService.RenderStepped:Connect(function()
+        renderConnection = RunService.RenderStepped:Connect(function()
             if not aimbot.isEnabled or not aimbot.isAiming then return end
 
             if lockedTarget and not isTargetValid(lockedTarget) then
                 lockedTarget = nil
                 aimbot.isAiming = false
+                return
             end
 
             if lockedTarget then
@@ -157,9 +151,9 @@ function aimbot.setEnabled(enabled)
             end
         end)
     else
-        if connection then
-            connection:Disconnect()
-            connection = nil
+        if renderConnection then
+            renderConnection:Disconnect()
+            renderConnection = nil
         end
         aimbot.isAiming = false
         lockedTarget = nil
