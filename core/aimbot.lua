@@ -19,6 +19,7 @@ aimbot.isAiming = false
 local connection = nil
 local lockedTarget = nil
 
+-- FOV circle
 local fovCircle = Drawing.new("Circle")
 fovCircle.Visible = false
 fovCircle.Radius = aimbot.fov
@@ -65,6 +66,7 @@ local function isTargetValid(targetPart)
     return true
 end
 
+-- Pega o player que está sob o mouse no momento de apertar E
 local function getTargetUnderMouse()
     local closestPart = nil
     local shortestDistance = aimbot.fov
@@ -122,14 +124,17 @@ end
 
 function aimbot.toggleAiming()
     if aimbot.isAiming then
+        -- Desativa e destravar alvo
         aimbot.isAiming = false
         lockedTarget = nil
     else
+        -- Trava no player que está sob o mouse agora
         local target = getTargetUnderMouse()
         if target then
             lockedTarget = target
             aimbot.isAiming = true
         end
+        -- Se não tiver ninguém no FOV, não ativa
     end
 end
 
